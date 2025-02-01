@@ -1,4 +1,5 @@
 build/
+old_sdl2_coursework/
 .vscode/
 CMakeFiles/
 CMakeCache.txt
