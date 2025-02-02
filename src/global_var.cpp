@@ -9,10 +9,13 @@ const Uint8* keyboard = SDL_GetKeyboardState(NULL);
 Uint32 mouse_buttons_state;
 SDL_Point mouse_position;
 double dt;
+what_is_running is_running = MAIN_MENU;
 
-int is_running_main_menu = 1;
-int is_running_load_menu = 0;
-int is_running_game = 0;
-int is_running_stop_game_menu = 0;
-int is_running_upgrade_menu = 0;
-int is_running_save_menu = 0;
+
+// int is_running_main_menu = 1;
+// int is_running_load_menu = 0;
+// int is_running_game = 0;
+// int is_running_stop_game_menu = 0;
+// int is_running_upgrade_menu = 0;
+// int is_running_save_menu = 0;
+// int is_running_change_skin_menu = 0;

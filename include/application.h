@@ -10,5 +10,6 @@
 void init_application();
 void de_init_application(int error = 0);
 void application();
+void de_init_main_cycle();
 
 #endif

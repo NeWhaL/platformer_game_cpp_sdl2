@@ -44,17 +44,39 @@ void de_init_application(int error) {
 }
 
 void application() {
-  while (is_running_main_menu || 
-         is_running_load_menu || 
-         is_running_game || 
-         is_running_stop_game_menu || 
-         is_running_upgrade_menu ||
-         is_running_save_menu) {
-    if (is_running_main_menu || is_running_load_menu)
-      menu();
-    else if (is_running_game)
+  // while (is_running_main_menu || 
+  //        is_running_load_menu || 
+  //        is_running_game || 
+  //        is_running_stop_game_menu || 
+  //        is_running_upgrade_menu ||
+  //        is_running_save_menu) {
+  while (is_running == MAIN_MENU ||
+         is_running == LOAD_MENU ||
+         is_running == GAME ||
+         is_running == STOP_GAME_MENU ||
+         is_running == UPGRADE_MENU ||
+         is_running == SAVE_MENU) {
+    // if (is_running_main_menu || is_running_load_menu)
+    if (is_running == MAIN_MENU || is_running == LOAD_MENU)
+      main_menu();
+    // else if (is_running_game)
+    else if (is_running == GAME)
       game();
-    else if (is_running_stop_game_menu || is_running_upgrade_menu || is_running_save_menu)
+    // else if (is_running_stop_game_menu || 
+    //          is_running_upgrade_menu || 
+    //          is_running_save_menu ||
+    //          is_running_change_skin_menu)
+    else if (is_running == STOP_GAME_MENU ||
+             is_running == UPGRADE_MENU ||
+             is_running == SAVE_MENU ||
+             is_running == CHANGE_SKIN_MENU)
       game_menu();
   }
+  de_init_main_cycle();
+}
+
+void de_init_main_cycle() {
+  de_init_main_menu();
+  de_init_game();
+  de_init_game_menu();
 }
