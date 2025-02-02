@@ -62,19 +62,19 @@ void buttons_malloc(button** buttons, int size) {
   *buttons = (button*)malloc(sizeof(button) * size);
 }
 
-// void create_buttons(button* buttons, button_type* types, const int size, const char* names[size]) {
-//   int i_up_margin = up_margin;
-//   for (int i = 0; i < amount_buttons_in_main_menu; ++i) {
-//     create_button(
-//       &buttons_main_menu[i],
-//       button_types_main_menu[i],
-//       button_names_main_menu[i],
-//       left_margin,
-//       i_up_margin
-//     );
-//     i_up_margin = buttons_main_menu[i].size_button.y + buttons_main_menu[i].size_button.h + up_margin;
-//   }
-// }
+void create_buttons(button* buttons, button_type* types, const char** names, const int amount_buttons) {
+  int i_up_margin = up_margin;
+  for (int i = 0; i < amount_buttons; ++i) {
+    create_button(
+      &buttons[i],
+      types[i],
+      names[i],
+      left_margin,
+      i_up_margin
+    );
+    i_up_margin = buttons[i].size_button.y + buttons[i].size_button.h + up_margin;
+  }
+}
 
 
 
@@ -97,32 +97,12 @@ void create_main_menu_buttons() {
   buttons_malloc(&buttons_main_menu, amount_buttons_in_main_menu);
   const char* button_names_main_menu[amount_buttons_in_main_menu] = { "new game", "load", "exit" };
   button_type button_types_main_menu[amount_buttons_in_main_menu] = { BUTTON_START, BUTTON_LOAD_MENU, BUTTON_EXIT };
-  int i_up_margin = up_margin;
-  for (int i = 0; i < amount_buttons_in_main_menu; ++i) {
-    create_button(
-      &buttons_main_menu[i],
-      button_types_main_menu[i],
-      button_names_main_menu[i],
-      left_margin,
-      i_up_margin
-    );
-    i_up_margin = buttons_main_menu[i].size_button.y + buttons_main_menu[i].size_button.h + up_margin;
-  }
+  create_buttons(buttons_main_menu, button_types_main_menu, button_names_main_menu, amount_buttons_in_main_menu);
 
   buttons_malloc(&buttons_load_menu, amount_buttons_in_load_menu);
   const char* button_names_load_menu[amount_buttons_in_load_menu] = { "load 1", "load 2", "load 3", "main menu"};
   button_type button_types_load_menu[amount_buttons_in_load_menu] = { BUTTON_LOAD, BUTTON_LOAD, BUTTON_LOAD, BUTTON_MAIN_MENU };
-  i_up_margin = up_margin;
-  for (int i = 0; i < amount_buttons_in_load_menu; ++i) {
-    create_button(
-      &buttons_load_menu[i],
-      button_types_load_menu[i],
-      button_names_load_menu[i],
-      left_margin,
-      i_up_margin
-    );
-    i_up_margin = buttons_load_menu[i].size_button.y + buttons_load_menu[i].size_button.h + up_margin;
-  }
+  create_buttons(buttons_load_menu, button_types_load_menu, button_names_load_menu, amount_buttons_in_load_menu);
 }
 
 
@@ -230,32 +210,12 @@ void create_game_menu_buttons() {
   const char* button_names_stop_menu[amount_buttons_in_stop_menu] = { "continue", "save", "upgrade", "change skin", "main menu"};
   button_type button_types_stop_menu[amount_buttons_in_stop_menu] = { BUTTON_CONTINUE, BUTTON_SAVE_MENU, 
     BUTTON_UPGRADE, BUTTON_CHANGE_SKIN, BUTTON_MAIN_MENU };
-  int i_up_margin = up_margin - 70;
-  for (int i = 0; i < amount_buttons_in_stop_menu; ++i) {
-    create_button(
-      &buttons_stop_menu[i],
-      button_types_stop_menu[i],
-      button_names_stop_menu[i],
-      left_margin,
-      i_up_margin
-    );
-    i_up_margin = buttons_stop_menu[i].size_button.y + buttons_stop_menu[i].size_button.h + up_margin - 70;
-  }
+  create_buttons(buttons_stop_menu, button_types_stop_menu, button_names_stop_menu, amount_buttons_in_stop_menu);
 
   buttons_malloc(&buttons_save_menu, amount_buttons_in_save_menu);
   const char* button_names_save_menu[amount_buttons_in_save_menu] = { "save 1", "save 2", "save 3", "back"};
   button_type button_types_save_menu[amount_buttons_in_save_menu] = { BUTTON_SAVE, BUTTON_SAVE, BUTTON_SAVE, BUTTON_STOP_GAME_MENU };
-  i_up_margin = up_margin - 70;
-  for (int i = 0; i < amount_buttons_in_save_menu; ++i) {
-    create_button(
-      &buttons_save_menu[i],
-      button_types_save_menu[i],
-      button_names_save_menu[i],
-      left_margin,
-      i_up_margin
-    );
-    i_up_margin = buttons_save_menu[i].size_button.y + buttons_save_menu[i].size_button.h + up_margin - 70;
-  }
+  create_buttons(buttons_save_menu, button_types_save_menu, button_names_save_menu, amount_buttons_in_save_menu);
 }
 
 void updating_game_menu_events(int* is_mouse_button_left) {

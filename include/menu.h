@@ -51,6 +51,7 @@ void create_button(button* btn, button_type type, const char* text, int x, int y
                    int w = button_width, int h = button_height, 
                    SDL_Color std_color = standart_color_button,
                    SDL_Color cur_color = current_color_button);
+void create_buttons(button* buttons, button_type* types, const char** names, const int amount_buttons);
 int button_collision(button* btn);
 int button_collision_rect(SDL_Rect btn_rect);
 void draw_button(button* btn);
