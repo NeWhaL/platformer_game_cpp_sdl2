@@ -24,12 +24,4 @@ extern enum what_is_running {
   CHANGE_SKIN_MENU
 } is_running;
 
-// extern int is_running_main_menu;
-// extern int is_running_load_menu;
-// extern int is_running_game;
-// extern int is_running_stop_game_menu;
-// extern int is_running_upgrade_menu;
-// extern int is_running_save_menu;
-// extern int is_running_change_skin_menu;
-
 #endif

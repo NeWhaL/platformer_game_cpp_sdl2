@@ -1,17 +1,23 @@
 #include "../include/game.h"
 
+int is_init_game = 1;
+
 void init_game(const char* save_file) {
+  if (!is_init_game)
+    return;
   if (!save_file) { 
+    init_hero(); 
+    is_init_game = 0;
   }
+  is_init_game = 0;
 }
 
 void de_init_game() {
-
+  de_init_hero();
 }
 
 void game(const char* save_file) {
   init_game(save_file);
-  // while (is_running_game) {
   while (is_running == GAME) {
     updating_game_events();
     updating_game_logic();
@@ -36,12 +42,12 @@ void updating_game_events() {
 }
 
 void updating_game_logic() {
-
+  updating_dt();
+  update_hero();
 }
 
 void draw_game_frame() {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderClear(renderer);
-
+  draw_background(&backgrounds[BACKGROUND_LEVEL_1]);
+  draw_hero();
   SDL_RenderPresent(renderer);
 }

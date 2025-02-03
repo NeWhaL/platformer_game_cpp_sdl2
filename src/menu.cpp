@@ -18,6 +18,15 @@ const int amount_buttons_in_load_menu = 4;
 const int amount_buttons_in_stop_menu = 5;
 const int amount_buttons_in_save_menu = 4;
 
+void init_main_menu() {
+  create_main_menu_buttons();
+}
+
+void init_game_menu() {
+  create_game_menu_buttons();
+}
+
+
 void create_button(button* btn, button_type type, const char* text, int x, int y, int w, int h,
                    SDL_Color std_color, SDL_Color cur_color) {
   btn->type = type;
@@ -54,6 +63,7 @@ void draw_button(button* btn) {
 void draw_menu(void draw_buttons_function(), SDL_Color background_color) {
   SDL_SetRenderDrawColor(renderer, background_color.r, background_color.g, background_color.b, background_color.a);
   SDL_RenderClear(renderer);
+  // draw_background(&backgrounds[MAIN_MENU]);
   draw_buttons_function();
   SDL_RenderPresent(renderer);
 }
@@ -76,13 +86,11 @@ void create_buttons(button* buttons, button_type* types, const char** names, con
   }
 }
 
-
-
 void main_menu() {
-  static int is_button_created = 0;
-  if (!is_button_created)
-    create_main_menu_buttons();
-  is_button_created = 1;
+  // if (!is_init_game) {
+  //   de_init_game();
+  //   is_init_game = 1;
+  // }
   int is_mouse_button_left = 0;
   while (is_running == MAIN_MENU || is_running == LOAD_MENU) {
     updating_mouse_state();
@@ -129,7 +137,6 @@ void updating_main_menu_events(int* is_mouse_button_left) {
 		} 
 	}
 }
-
 
 void logic_main_menu(int is_mouse_button_left) {
   if (is_running == MAIN_MENU) {
@@ -190,10 +197,6 @@ void de_init_main_menu() {
 
 
 void game_menu() {
-  static int is_button_created = 0;
-  if (!is_button_created)
-    create_game_menu_buttons();
-  is_button_created = 1;
   int is_mouse_button_left = 0;
   while (is_running == STOP_GAME_MENU || is_running == SAVE_MENU ||
          is_running == UPGRADE_MENU || is_running == CHANGE_SKIN_MENU) {

@@ -5,6 +5,8 @@
 #include "global_var.h"
 #include "font.h"
 #include "other_function.h"
+#include "background.h"
+#include "game.h"
 
 extern SDL_Color standart_background_color;
 extern SDL_Color current_color_button;
@@ -45,6 +47,9 @@ extern struct button {
   *buttons_load_menu, 
   *buttons_stop_menu,
   *buttons_save_menu;
+
+void init_main_menu();
+void init_game_menu();
 
 void buttons_malloc(button** buttons, int size);
 void create_button(button* btn, button_type type, const char* text, int x, int y,
