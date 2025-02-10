@@ -6,8 +6,8 @@
 #include "menu.h"
 #include "other_function.h"
 #include "font.h"
-#include "background.h"
 #include "hero.h"
+#include "level.h"
 
 void init_game(const char* save_file);
 void game(const char* save_file = NULL);

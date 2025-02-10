@@ -87,10 +87,10 @@ void create_buttons(button* buttons, button_type* types, const char** names, con
 }
 
 void main_menu() {
-  // if (!is_init_game) {
-  //   de_init_game();
-  //   is_init_game = 1;
-  // }
+  if (!is_init_game) {
+    de_init_game();
+    is_init_game = 1;
+  }
   int is_mouse_button_left = 0;
   while (is_running == MAIN_MENU || is_running == LOAD_MENU) {
     updating_mouse_state();

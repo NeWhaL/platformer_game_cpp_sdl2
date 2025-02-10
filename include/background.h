@@ -6,8 +6,8 @@
 #include "other_function.h"
 #include <string.h>
 
-enum background_type {
- BACKGROUND_NONE,
+enum Background_type {
+ BACKGROUND_NONE = -1,
  BACKGROUND_LEVEL_1,
  BACKGROUND_LEVEL_2,
  BACKGROUND_LEVEL_3,
@@ -15,18 +15,18 @@ enum background_type {
  BACKGROUND_GAME_MENU
 };
 
-extern struct background {
+extern struct Background {
   SDL_Color color;
   SDL_Texture* texture = NULL;
   SDL_Rect size = { 0, 0, 0, 0 };
-  background_type type;
+  Background_type type;
 } *backgrounds;
 extern const int amount_backgrounds;
 
 void init_backgrounds();
 void de_init_backgrounds();
-void create_background(background* b, const char* filename, background_type type, SDL_Color color = { 0, 0, 0, 255 });
-void destroy_background(background* b);
-void draw_background(background* b);
+void create_background(Background* b, const char* filename, Background_type type, SDL_Color color = { 0, 0, 0, 255 });
+void destroy_background(Background* b);
+void draw_background(Background* b);
 
 #endif

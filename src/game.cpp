@@ -6,6 +6,7 @@ void init_game(const char* save_file) {
   if (!is_init_game)
     return;
   if (!save_file) { 
+    init_level(LEVEL_1);
     init_hero(); 
     is_init_game = 0;
   }
@@ -14,6 +15,7 @@ void init_game(const char* save_file) {
 
 void de_init_game() {
   de_init_hero();
+  de_init_level();
 }
 
 void game(const char* save_file) {
@@ -47,7 +49,7 @@ void updating_game_logic() {
 }
 
 void draw_game_frame() {
-  draw_background(&backgrounds[BACKGROUND_LEVEL_1]);
+  draw_level();
   draw_hero();
   SDL_RenderPresent(renderer);
 }

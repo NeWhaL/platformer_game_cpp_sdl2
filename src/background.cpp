@@ -1,12 +1,12 @@
 #include "../include/background.h"
 
-background* backgrounds = NULL;
+Background* backgrounds = NULL;
 const int amount_backgrounds = 5;
 const char* backgrounds_path[amount_backgrounds] {
   "level_1.png", "level_2.png", "level_3.png", "level_3.png", "level_2.png", 
 };
-background_type backgrounds_type[amount_backgrounds] = { 
-  BACKGROUND_LEVEL_1, 
+Background_type backgrounds_type[amount_backgrounds] = { 
+  BACKGROUND_LEVEL_1,
   BACKGROUND_LEVEL_2, 
   BACKGROUND_LEVEL_3, 
   BACKGROUND_MAIN_MENU, 
@@ -14,7 +14,7 @@ background_type backgrounds_type[amount_backgrounds] = {
 };
 
 void init_backgrounds() {
-  if (!(backgrounds = (background*)malloc(sizeof(background) * amount_backgrounds))) {
+  if (!(backgrounds = (Background*)malloc(sizeof(Background) * amount_backgrounds))) {
     printf("Не удалось выделить ресурсы под backgrounds...\n");
     de_init_application(1);
   }
@@ -33,7 +33,7 @@ void de_init_backgrounds() {
   free(backgrounds);
 }
 
-void create_background(background* b, const char* filename, background_type type, SDL_Color color) {
+void create_background(Background* b, const char* filename, Background_type type, SDL_Color color) {
   b->color = color;
   SDL_Rect size;
   b->texture = load_texture_from_file(filename, &size);
@@ -41,12 +41,12 @@ void create_background(background* b, const char* filename, background_type type
   b->type = type;
 }
 
-void destroy_background(background* b) {
+void destroy_background(Background* b) {
   SDL_DestroyTexture(b->texture);
   free(b);
 }
 
-void draw_background(background* b) {
+void draw_background(Background* b) {
   SDL_SetRenderDrawColor(renderer, b->color.r, b->color.g, b->color.b, b->color.a);
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, b->texture, NULL, NULL);
