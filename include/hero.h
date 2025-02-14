@@ -6,6 +6,7 @@
 #include "application.h"
 #include "texture.h"
 #include "level.h"
+#include <math.h>
 
 enum direction_movement {
   DIRECTION_NONE,
@@ -28,6 +29,8 @@ extern struct personage {
   float coefficient_jerk;
   int running;
   float health;
+  int is_standing;
+  float jump_height;
 } *hero;
 
 void init_hero();
@@ -35,6 +38,7 @@ void de_init_hero();
 void draw_hero();
 void update_hero();
 void move_hero();
+void jump_hero();
 void set_current_sprite_hero(double time_one_frame);
 void collision_with_blocks_hero();
 

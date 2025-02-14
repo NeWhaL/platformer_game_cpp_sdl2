@@ -12,6 +12,7 @@ extern const Uint8* keyboard;
 extern Uint32 mouse_buttons_state;
 extern SDL_Point mouse_position;
 extern double dt;
+extern const double speed_gravity;
 
 extern enum what_is_running {
   NO_IS_RUNNING,

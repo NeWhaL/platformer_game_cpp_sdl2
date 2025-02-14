@@ -22,6 +22,8 @@ void init_hero() {
   hero->coefficient_jerk = 3;
   hero->current_texture = &hero->textures.idle;
   hero->direction = DIRECTION_RIGHT;
+  hero->is_standing = 1;
+  hero->jump_height = 200;
 }
 
 void de_init_hero() {
@@ -40,8 +42,15 @@ void draw_hero() {
 }
 
 void update_hero() {
+  SDL_FPoint coordinates_before_gravity_action = hero->coordinates;
+  gravity(&hero->coordinates);
   move_hero();
+  jump_hero();
   collision_with_blocks_hero();
+  if (hero->coordinates.y > coordinates_before_gravity_action.y)
+    hero->is_standing = 0;
+  else
+    hero->is_standing = 1;
   set_current_sprite_hero(130);
 }
 
@@ -61,6 +70,27 @@ void move_hero() {
     hero->coordinates.y += speed_dt(hero->speed * coeficient_jerk);
   }
   synchronize_hitbox_with_coordinates(&hero->hitbox, hero->coordinates);
+}
+
+void jump_hero() {
+  static int is_jumping = 0;
+  static float jump_speed_y = 0;
+  if (keyboard[SDL_SCANCODE_SPACE] && hero->is_standing) {
+    // is_jumping = 1;
+    jump_speed_y = sqrt(2 * (hero->speed + speed_gravity) * hero->jump_height);
+    hero->is_standing = 0;
+  }
+  if (!hero->is_standing) {
+    jump_speed_y -= (hero->speed + speed_gravity) * dt;
+    hero->coordinates.y -= speed_dt(jump_speed_y);
+  }
+  // if (is_jumping) {
+    // jump_speed_y -= speed_gravity * dt;
+  // } else 
+  // if (jump_speed_y <= 0) {
+    // is_jumping = 0;
+    // jump_speed_y += speed_gravity * dt;
+  // }
 }
 
 void set_current_sprite_hero(double time_one_frame) {
@@ -96,7 +126,7 @@ void collision_with_blocks_hero() {
             hero->coordinates.x += speed_dt(hero->speed * coeficient_jerk);
           } break;
           case COLLISION_UP: {
-            hero->coordinates.y -= speed_dt(hero->speed * coeficient_jerk);
+            hero->coordinates.y -= speed_dt(speed_gravity);
           } break;
           case COLLISION_DOWN: {
             hero->coordinates.y += speed_dt(hero->speed * coeficient_jerk);

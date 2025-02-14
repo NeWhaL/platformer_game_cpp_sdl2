@@ -9,4 +9,5 @@ const Uint8* keyboard = SDL_GetKeyboardState(NULL);
 Uint32 mouse_buttons_state;
 SDL_Point mouse_position;
 double dt;
+const double speed_gravity = 100;
 what_is_running is_running = MAIN_MENU;

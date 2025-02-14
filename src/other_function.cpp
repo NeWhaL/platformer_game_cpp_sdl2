@@ -29,13 +29,7 @@ SDL_Texture* load_texture_from_file(const char* filename, SDL_Rect* size) {
 }
 
 collision_direction collision_with_block(const SDL_Rect *hitbox_anyone, const SDL_Rect* hitbox_block) {
-  // return (hitbox_anyone->x + hitbox_anyone->w >= hitbox_block->x &&
-  //        !(hitbox_anyone->y >= hitbox_block->y + hitbox_block->h ||
-  //        hitbox_anyone->y + hitbox_anyone->h <= hitbox_block->y)) &&
-  //        (hitbox_anyone->x <= hitbox_block->x + hitbox_block->w &&
-  //        !(hitbox_anyone->y >= hitbox_block->y + hitbox_block->h ||
-  //        hitbox_anyone->y + hitbox_anyone->h <= hitbox_block->y));
-  collision_direction collision = COLLISION_NONE;  
+  collision_direction collision = COLLISION_NONE;
   if (hitbox_anyone->x + hitbox_anyone->w >= hitbox_block->x &&
 		!(hitbox_anyone->y >= hitbox_block->y + hitbox_block->h ||
 			hitbox_anyone->y + hitbox_anyone->h <= hitbox_block->y) &&
@@ -47,7 +41,7 @@ collision_direction collision_with_block(const SDL_Rect *hitbox_anyone, const SD
 			hitbox_anyone->y + hitbox_anyone->h <= hitbox_block->y) &&
 			hitbox_anyone->x + hitbox_anyone->w > hitbox_block->x + hitbox_block->w) {
 		collision = COLLISION_RIGHT;
-  } 
+  }
 	if (hitbox_anyone->y + hitbox_anyone->h >= hitbox_block->y &&
 		!(hitbox_anyone->x >= hitbox_block->x + hitbox_block->w ||
 			hitbox_anyone->x + hitbox_anyone->w <= hitbox_block->x) &&
@@ -66,4 +60,8 @@ collision_direction collision_with_block(const SDL_Rect *hitbox_anyone, const SD
 void synchronize_hitbox_with_coordinates(SDL_Rect* hitbox, SDL_FPoint coordinates) {
   hitbox->x = (int)coordinates.x;
   hitbox->y = (int)coordinates.y;
+}
+
+void gravity(SDL_FPoint* coordinates) {
+	coordinates->y += speed_dt(speed_gravity);
 }

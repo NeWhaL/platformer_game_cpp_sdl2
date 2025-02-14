@@ -1,7 +1,6 @@
 quuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuw
 l                                                          r
 l                                                          r
-l         g                                                r
 l                                                          r
 l                                                          r
 l                                                          r
@@ -29,6 +28,7 @@ l                                                          r
 l                                                          r
 l                                                          r
 l                                                          r
+lg ggggg                                                   r
 l                                                          r
 l                                                          r
 adddddddddddddddddddddddddddddddddddddddddddddddddddddddddds
