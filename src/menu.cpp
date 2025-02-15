@@ -93,6 +93,7 @@ void main_menu() {
   }
   int is_mouse_button_left = 0;
   while (is_running == MAIN_MENU || is_running == LOAD_MENU) {
+    updating_dt();
     updating_mouse_state();
     updating_main_menu_events(&is_mouse_button_left);  
     logic_main_menu(is_mouse_button_left);
@@ -200,6 +201,7 @@ void game_menu() {
   int is_mouse_button_left = 0;
   while (is_running == STOP_GAME_MENU || is_running == SAVE_MENU ||
          is_running == UPGRADE_MENU || is_running == CHANGE_SKIN_MENU) {
+    updating_dt();
     updating_mouse_state();
     updating_game_menu_events(&is_mouse_button_left);
     logic_game_menu(is_mouse_button_left);
