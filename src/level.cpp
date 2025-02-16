@@ -138,10 +138,18 @@ void init_platforms() {
         }
         platforms[amount_platforms].amount_sprite = 1;
         platforms[amount_platforms].coordinates = { float(j * level->real_size_edge_block), float(i * level->real_size_edge_block) };
-        platforms[amount_platforms].speed = 50;
+        platforms[amount_platforms].speed = 150;
         platforms[amount_platforms].type = PLATFORM_BASE;
+        platforms[amount_platforms].hitbox = { 
+          int(platforms[amount_platforms].coordinates.x),
+          int(platforms[amount_platforms].coordinates.y),
+          level->real_size_edge_block,
+          level->real_size_edge_block
+        };
+        platforms[amount_platforms].direction = DIRECTION_LEFT;
         is_prev_platform = 1;
       } else if (is_prev_platform) {
+        platforms[amount_platforms].hitbox.w *= platforms[amount_platforms].amount_sprite;
         is_prev_platform = 0;
         amount_platforms++;
       }
@@ -155,23 +163,30 @@ void de_init_platforms() {
 }
 
 void updating_platforms() { 
-  int direction = 1;
   for (int k = 0; k < amount_platforms; ++k) {
     for (int i = 0; i < level->amount_blocks.y; ++i) {
       for (int j = 0; j < level->amount_blocks.x; ++j) {
+        Blocks b_type = Blocks(level->map[i][j]);
+        if (b_type == BLOCK_PLATFORM_BASE || b_type == BLOCK_SPACE)
+          continue;
         SDL_Rect hitbox_block = { level->real_size_edge_block * j, level->real_size_edge_block * i, 
           level->real_size_edge_block, level->real_size_edge_block };
-        switch (collision_with_block(&platforms[i].hitbox, &hitbox_block)) {
+        switch (collision_with_block(&platforms[k].hitbox, &hitbox_block)) {
           case COLLISION_LEFT:
-            direction = 1;
+            platforms[k].direction = DIRECTION_RIGHT;
           break;
           case COLLISION_RIGHT:
-            direction = -1;
+            platforms[k].direction = DIRECTION_LEFT;
           break;
         }
       }
     }
-    platforms[k].coordinates.x += direction * speed_dt(platforms[k].speed);
+    if (platforms[k].direction == DIRECTION_LEFT)
+      platforms[k].coordinates.x += speed_dt(platforms[k].speed);
+    else
+      platforms[k].coordinates.x -= speed_dt(platforms[k].speed); 
+    platforms[k].hitbox.x = platforms[k].coordinates.x;
+    platforms[k].hitbox.y = platforms[k].coordinates.y;
   }
 }
 

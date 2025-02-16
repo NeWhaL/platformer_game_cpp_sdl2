@@ -5,7 +5,7 @@
 #include "global_var.h"
 #include "background.h"
 #include "texture.h"
-#include "platforms.h"
+#include "direction.h"
 
 extern int amount_platforms;
 extern const int amount_levels;
@@ -48,9 +48,8 @@ extern struct Platform {
   Platrorm_type type;
   SDL_FPoint coordinates;
   SDL_Rect hitbox;
-  SDL_Rect barrier_left;
-  SDL_Rect barrier_right;
   int amount_sprite;
+  direction_movement direction;
   float speed;
 } *platforms;
 

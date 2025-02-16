@@ -7,21 +7,14 @@
 #include "texture.h"
 #include "level.h"
 #include <math.h>
-
-enum direction_movement {
-  DIRECTION_NONE,
-  DIRECTION_LEFT,
-  DIRECTION_RIGHT
-};
-
-struct personage_textures {
-  Texture idle;
-};
+#include "direction.h"
 
 extern struct personage {
   SDL_Rect hitbox;
   SDL_FPoint coordinates;
-  personage_textures textures;
+  struct personage_textures {
+    Texture idle;
+  } textures;
   Texture* current_texture;
   int current_idle;
   direction_movement direction;
