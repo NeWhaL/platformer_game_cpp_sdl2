@@ -21,13 +21,13 @@ l                                                          r
 l                                                          r
 l                                                          r
 l                                                          r
+l                 p p                                      r
 l                                                          r
+l           p                                              r
+l              p                                           r
+l         p          ppppp                                 r
 l                                                          r
-l                                                          r
-l                                                          r
-l                                                          r
-l                                                          r
-l                                                          r
+l                   pp                                     r
 lg ggggg                                                   r
 l                                                          r
 l                                                          r

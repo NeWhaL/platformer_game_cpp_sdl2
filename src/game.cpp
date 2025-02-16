@@ -46,6 +46,7 @@ void updating_game_events() {
 void updating_game_logic() {
   updating_dt();
   update_hero();
+  updating_level();
 }
 
 void draw_game_frame() {

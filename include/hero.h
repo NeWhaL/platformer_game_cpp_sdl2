@@ -15,14 +15,14 @@ enum direction_movement {
 };
 
 struct personage_textures {
-  texture idle;
+  Texture idle;
 };
 
 extern struct personage {
   SDL_Rect hitbox;
   SDL_FPoint coordinates;
   personage_textures textures;
-  texture* current_texture;
+  Texture* current_texture;
   int current_idle;
   direction_movement direction;
   float speed;
@@ -41,7 +41,6 @@ void draw_hero();
 void update_hero();
 void move_hero();
 void gravity_hero();
-void jump_hero();
 void set_current_sprite_hero(double time_one_frame);
 void collision_with_blocks_hero();
 

@@ -47,7 +47,6 @@ void update_hero() {
   SDL_FPoint coordinates_before_gravity_action = hero->coordinates;
   gravity_hero();
   move_hero();
-  jump_hero();
   collision_with_blocks_hero();
   set_current_sprite_hero(130);
 }
@@ -72,7 +71,6 @@ void move_hero() {
 
 void gravity_hero() {
   static float jump_speed_y = 0;
-  // static float current_speed_gravity = 0;
   if (hero->current_speed_gravity < speed_gravity)
     hero->current_speed_gravity += speed_dt(speed_gravity);
   if (keyboard[SDL_SCANCODE_SPACE] && hero->is_standing) {
@@ -86,7 +84,6 @@ void gravity_hero() {
     jump_speed_y -= speed_dt(hero->current_speed_gravity);
   } else 
     jump_speed_y = 0;
-    // current_speed_gravity = 0;
   if (jump_speed_y <= 0 && hero->is_jumping) {
     hero->is_jumping = 0;
     hero->current_speed_gravity = 0;
@@ -95,38 +92,6 @@ void gravity_hero() {
   if (!hero->is_jumping) {
     hero->coordinates.y += speed_dt(hero->current_speed_gravity);
   }
-
-
-  // static float current_speed_gravity = 0;
-  // if (hero->is_standing) {
-  //   current_speed_gravity = 0;
-  //   return;
-  // }
-  // current_speed_gravity -= speed_dt(speed_gravity);
-  // if (current_speed_gravity < -100)
-  //   int q = 1;
-  // float d = speed_dt(current_speed_gravity);
-  // hero->coordinates.y += speed_dt(current_speed_gravity);
-}
-
-void jump_hero() {
-  // static int is_jumping = 0;
-  // static float jump_speed_y = 0;
-  // if (keyboard[SDL_SCANCODE_SPACE] && hero->is_standing) {
-    // is_jumping = 1;
-    // jump_speed_y = sqrt(2 * speed_gravity * hero->jump_height);
-    // hero->is_standing = 0;
-  // }
-  // if (!hero->is_standing)
-  //   hero->coordinates.y -= speed_dt(jump_speed_y);
-  // else
-  //   jump_speed_y = 0;
-  // if (!hero->is_standing) {
-  //   jump_speed_y -= speed_dt(speed_gravity);
-  //   if (jump_speed_y < -100)
-  //     int x = 1;
-  //   hero->coordinates.y -= speed_dt(jump_speed_y);
-  // }
 }
 
 void set_current_sprite_hero(double time_one_frame) {
@@ -152,7 +117,8 @@ void collision_with_blocks_hero() {
   int is_hero_standing = 0;
   for (int i = 0; i < level->amount_blocks.y; ++i) {
     for (int j = 0; j < level->amount_blocks.x; ++j) {
-      if (level->map[i][j] != BLOCK_SPACE) {
+      Blocks b_type = Blocks(level->map[i][j]);
+      if (b_type != BLOCK_SPACE && b_type != BLOCK_PLATFORM_BASE) {
         position_block.x = j * level->real_size_edge_block;
         position_block.y = i * level->real_size_edge_block;
         switch (collision_with_block(&hero->hitbox, &position_block)) {
