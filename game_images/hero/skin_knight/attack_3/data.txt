@@ -1,0 +1,9 @@
+8
+hero_knight_attack_3_0.png
+hero_knight_attack_3_1.png
+hero_knight_attack_3_2.png
+hero_knight_attack_3_3.png
+hero_knight_attack_3_4.png
+hero_knight_attack_3_5.png
+hero_knight_attack_3_6.png
+hero_knight_attack_3_7.png

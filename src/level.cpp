@@ -22,11 +22,14 @@ void init_level(Level_number number) {
   fclose(f);
   level->texture_size_edge_block = 16;
   level->real_size_edge_block = level->texture_size_edge_block * 2;
-  level->blocks.texture = load_texture_from_file("../game_images/blocks/blocks_map_1.png", 
+  level->blocks.sprite = load_texture_from_file("../game_images/blocks/blocks_map_1.png", 
     &level->blocks.size);
-  level->blocks.amount_sprite = level->blocks.size.w / level->texture_size_edge_block * 
-    level->blocks.size.h / level->texture_size_edge_block;
+  SDL_SetTextureBlendMode(level->blocks.sprite, SDL_BLENDMODE_BLEND);
   init_platforms();
+}
+
+void load_level(const char* load_file) {
+
 }
 
 Level* malloc_level() {
@@ -43,7 +46,7 @@ Level* malloc_level() {
 void de_init_level() {
   de_init_platforms();
   int row = level->amount_blocks.y;
-  SDL_DestroyTexture(level->blocks.texture);
+  SDL_DestroyTexture(level->blocks.sprite);
   for (int i = 0; i < row; ++i)
     free(level->map[i]);
   free(level->map);
@@ -109,7 +112,7 @@ void draw_level() {
         }
       }
       if (draw_it)
-        SDL_RenderCopy(renderer, level->blocks.texture, &srcrect, &dstrect);
+        SDL_RenderCopy(renderer, level->blocks.sprite, &srcrect, &dstrect);
       draw_it = 1;
       dstrect.x += dstrect.w;
     }
@@ -128,30 +131,44 @@ void init_platforms() {
   platforms = (Platform*)malloc(sizeof(Platform) * amount_platforms);
   amount_platforms = 0;
   int is_prev_platform = 0;
+  Platform* platform = &platforms[amount_platforms];
   for (int i = 0; i < level->amount_blocks.y; ++i) {
     for (int j = 0; j < level->amount_blocks.x; ++j) {
       Blocks b_type = (Blocks)level->map[i][j];
       if (b_type == BLOCK_PLATFORM_BASE) {
         if (is_prev_platform) {
-          platforms[amount_platforms].amount_sprite++;
+          platform->amount_sprite++;
           continue;
         }
-        platforms[amount_platforms].amount_sprite = 1;
-        platforms[amount_platforms].coordinates = { float(j * level->real_size_edge_block), float(i * level->real_size_edge_block) };
-        platforms[amount_platforms].speed = 150;
-        platforms[amount_platforms].type = PLATFORM_BASE;
-        platforms[amount_platforms].hitbox = { 
-          int(platforms[amount_platforms].coordinates.x),
-          int(platforms[amount_platforms].coordinates.y),
+        platform->amount_sprite = 1;
+        platform->coordinates = { float(j * level->real_size_edge_block), float(i * level->real_size_edge_block) };
+        platform->speed = 50;
+        platform->type = PLATFORM_BREAKING;
+        platform->hitbox = {
+          int(platform->coordinates.x),
+          int(platform->coordinates.y),
           level->real_size_edge_block,
           level->real_size_edge_block
         };
-        platforms[amount_platforms].direction = DIRECTION_LEFT;
+        platform->direction = DIRECTION_LEFT;
         is_prev_platform = 1;
+        switch (platform->type) {
+          case PLATFORM_DISAPPEARING: {
+            platform->special.disappearing.counter_time = 0;
+            platform->special.disappearing.active_time = 3000;
+            platform->special.disappearing.inactive_time = 1000;
+            platform->special.disappearing.is_active = 1;
+          } break;
+          case PLATFORM_BREAKING: {
+            platform->special.breaking.max_remaining_time = 1500;
+            platform->special.breaking.remaining_time = platform->special.breaking.max_remaining_time;
+            platform->special.breaking.was_the_hero_standing_on_the_platform = 0;
+          } break;
+        }
       } else if (is_prev_platform) {
-        platforms[amount_platforms].hitbox.w *= platforms[amount_platforms].amount_sprite;
+        platform->hitbox.w *= platform->amount_sprite;
         is_prev_platform = 0;
-        amount_platforms++;
+        platform = &platforms[++amount_platforms];
       }
     }
   }
@@ -162,32 +179,72 @@ void de_init_platforms() {
   free(platforms);
 }
 
-void updating_platforms() { 
-  for (int k = 0; k < amount_platforms; ++k) {
-    for (int i = 0; i < level->amount_blocks.y; ++i) {
-      for (int j = 0; j < level->amount_blocks.x; ++j) {
-        Blocks b_type = Blocks(level->map[i][j]);
-        if (b_type == BLOCK_PLATFORM_BASE || b_type == BLOCK_SPACE)
-          continue;
-        SDL_Rect hitbox_block = { level->real_size_edge_block * j, level->real_size_edge_block * i, 
-          level->real_size_edge_block, level->real_size_edge_block };
-        switch (collision_with_block(&platforms[k].hitbox, &hitbox_block)) {
-          case COLLISION_LEFT:
-            platforms[k].direction = DIRECTION_RIGHT;
-          break;
-          case COLLISION_RIGHT:
-            platforms[k].direction = DIRECTION_LEFT;
-          break;
+void updating_platforms() {
+  for (int i = 0; i < amount_platforms; ++i) {
+    if (platforms[i].type == PLATFORM_INACTIVE)
+      continue;
+    move_platform(&platforms[i]);
+    collision_platform_with_blocks(&platforms[i]);
+    special_platform_action(&platforms[i]);
+  }
+}
+
+void special_platform_action(Platform* platform) {
+  switch (platform->type) {
+    case PLATFORM_BASE: {
+      //Возможно, какое-то специальное действие с платформой, где type == PLATFORM_BASE
+    } break;
+    case PLATFORM_DISAPPEARING: {
+      platform->special.disappearing.counter_time += dt;
+      if (platform->special.disappearing.is_active) {
+        if (platform->special.disappearing.counter_time > platform->special.disappearing.active_time) {
+          platform->special.disappearing.is_active = 0;
+          platform->special.disappearing.counter_time = 0;
+        }
+      } else {
+        if (platform->special.disappearing.counter_time > platform->special.disappearing.inactive_time) {
+          platform->special.disappearing.is_active = 1;
+          platform->special.disappearing.counter_time = 0;
         }
       }
-    }
-    if (platforms[k].direction == DIRECTION_LEFT)
-      platforms[k].coordinates.x += speed_dt(platforms[k].speed);
-    else
-      platforms[k].coordinates.x -= speed_dt(platforms[k].speed); 
-    platforms[k].hitbox.x = platforms[k].coordinates.x;
-    platforms[k].hitbox.y = platforms[k].coordinates.y;
+    } break;
+    case PLATFORM_BREAKING: {
+      if (platform->special.breaking.was_the_hero_standing_on_the_platform) {
+        platform->special.breaking.remaining_time -= dt;
+        if (platform->special.breaking.remaining_time <= 0)
+          platform->type = PLATFORM_INACTIVE;
+      }
+    } break;
   }
+}
+
+void move_platform(Platform* platform) {
+  if (platform->direction == DIRECTION_LEFT)
+    platform->coordinates.x -= speed_dt(platform->speed);
+  else
+    platform->coordinates.x += speed_dt(platform->speed); 
+  synchronize_hitbox_with_coordinates(&platform->hitbox, platform->coordinates);
+}
+
+void collision_platform_with_blocks(Platform* platform) {
+  for (int i = 0; i < level->amount_blocks.y; ++i) {
+    for (int j = 0; j < level->amount_blocks.x; ++j) {
+      Blocks b_type = Blocks(level->map[i][j]);
+      if (b_type == BLOCK_PLATFORM_BASE || b_type == BLOCK_SPACE)
+        continue;
+      SDL_Rect hitbox_block = { level->real_size_edge_block * j, level->real_size_edge_block * i, 
+        level->real_size_edge_block, level->real_size_edge_block };
+      switch (collision_with_block(&platform->hitbox, &hitbox_block)) {
+        case COLLISION_LEFT:
+          platform->direction = DIRECTION_LEFT;
+        break;
+        case COLLISION_RIGHT:
+          platform->direction = DIRECTION_RIGHT;
+        break;
+      }
+    }
+  }
+  synchronize_hitbox_with_coordinates(&platform->hitbox, platform->coordinates);
 }
 
 void draw_platforms() {
@@ -195,22 +252,42 @@ void draw_platforms() {
   srcrect.y = srcrect.h * 3;
   SDL_Rect dstrect = { 0, 0, level->real_size_edge_block, level->real_size_edge_block };
   for (int i = 0; i < amount_platforms; ++i) {
-    dstrect.x = platforms[i].coordinates.x;
-    dstrect.y = platforms[i].coordinates.y;
-    if (platforms[i].amount_sprite == 1) {
+    Platform *platform = &platforms[i];
+    dstrect.x = platform->coordinates.x;
+    dstrect.y = platform->coordinates.y;
+    switch (platform->type) {
+      case PLATFORM_BASE: {
+
+      } break;
+      case PLATFORM_DISAPPEARING: {
+      if (!platform->special.disappearing.is_active)
+        SDL_SetTextureAlphaMod(level->blocks.sprite, 128);
+      } break;
+      case PLATFORM_BREAKING: {
+        if (platform->special.breaking.was_the_hero_standing_on_the_platform) {
+          SDL_SetTextureAlphaMod(level->blocks.sprite, 255 * 
+            platform->special.breaking.remaining_time / platform->special.breaking.max_remaining_time);
+        }
+      } break;
+      default: {
+        continue;
+      } 
+    }
+    if (platform->amount_sprite == 1) {
       srcrect.x = 3 * level->texture_size_edge_block;
-      SDL_RenderCopy(renderer, level->blocks.texture, &srcrect, &dstrect);
+      SDL_RenderCopy(renderer, level->blocks.sprite, &srcrect, &dstrect);
     } else {
-      for (int j = 0; j < platforms[i].amount_sprite; ++j) {
+      for (int j = 0; j < platform->amount_sprite; ++j) {
         if (j == 0)
           srcrect.x = 0;
-        else if (j + 1 == platforms[i].amount_sprite)
+        else if (j + 1 == platform->amount_sprite)
           srcrect.x = 2 * level->texture_size_edge_block;
         else
           srcrect.x = level->texture_size_edge_block;
-        SDL_RenderCopy(renderer, level->blocks.texture, &srcrect, &dstrect);
+        SDL_RenderCopy(renderer, level->blocks.sprite, &srcrect, &dstrect);
         dstrect.x += level->real_size_edge_block;
       }
     }
+    SDL_SetTextureAlphaMod(level->blocks.sprite, 255);
   }
 }

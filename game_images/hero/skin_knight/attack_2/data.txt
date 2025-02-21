@@ -1,0 +1,7 @@
+6
+hero_knight_attack_2_0.png
+hero_knight_attack_2_1.png
+hero_knight_attack_2_2.png
+hero_knight_attack_2_3.png
+hero_knight_attack_2_4.png
+hero_knight_attack_2_5.png

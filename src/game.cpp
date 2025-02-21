@@ -9,6 +9,10 @@ void init_game(const char* save_file) {
     init_level(LEVEL_1);
     init_hero(); 
     is_init_game = 0;
+  } else {
+    load_level(save_file);
+    load_hero(save_file);
+    // is_init_game = 0;
   }
   is_init_game = 0;
 }

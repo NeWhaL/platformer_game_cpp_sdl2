@@ -65,3 +65,39 @@ void synchronize_hitbox_with_coordinates(SDL_Rect* hitbox, SDL_FPoint coordinate
 void gravity(SDL_FPoint* coordinates) {
 	coordinates->y += speed_dt(speed_gravity);
 }
+
+void init_texture(Texture* some_texture, const char* path_to_the_sprite_directory) {
+  const int buffer_size = 512;
+  char data[buffer_size];
+  snprintf(data, sizeof(data), "%s%s", path_to_the_sprite_directory, "data.txt");
+  FILE* f = fopen(data, "r");
+  if (!f) {
+    printf("Не удалось загрузить спрайты из %s...\n", path_to_the_sprite_directory);
+    de_init_application(1);
+  }
+  fscanf(f, "%d", &some_texture->amount_sprite);
+	fgetc(f);
+  some_texture->sprites = (Sprite*)malloc(sizeof(Sprite) * some_texture->amount_sprite);
+  for (int i = 0; i < some_texture->amount_sprite; ++i) {
+    char sprite_name[buffer_size / 2];
+    if (fgets(sprite_name, sizeof(sprite_name), f) == NULL) {
+      printf("Ошибка: фактическое число спрайтов оказалось меньше, чем указано в файле %s в первой строке...", data);
+      fclose(f);
+      de_init_application(1);
+    }
+		int size_sprite_name = strlen(sprite_name);
+		if (size_sprite_name > 0 && sprite_name[size_sprite_name - 1] == '\n') {
+			sprite_name[size_sprite_name - 1] = '\0';
+		}
+		char sprite_path[buffer_size];
+		snprintf(sprite_path, buffer_size, "%s%s", path_to_the_sprite_directory, sprite_name);
+    some_texture->sprites[i].sprite = load_texture_from_file(sprite_path, &some_texture->sprites[i].size);
+  }
+  fclose(f);
+}
+
+void de_init_texture(Texture* texture) {
+  for (int i = 0; i < texture->amount_sprite; ++i)
+    SDL_DestroyTexture(texture->sprites[i].sprite);
+  free(texture->sprites);
+}

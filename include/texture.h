@@ -3,9 +3,13 @@
 
 #include "sdl.h"
 
-struct Texture {
-  SDL_Texture* texture;
+struct Sprite {
+  SDL_Texture* sprite;
   SDL_Rect size;
+};
+
+struct Texture {
+  Sprite* sprites;
   int amount_sprite;
 };
 
