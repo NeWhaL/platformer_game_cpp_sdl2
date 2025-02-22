@@ -7,13 +7,12 @@ void init_hero() {
     printf("Не удалось получить ресурсы для Hero *hero...\n");
     de_init_application(1);
   }
-  hero->current_number_sprite = 0;
   hero->coordinates = get_coordinates_for_new_game_hero();
-  // init_texture(&hero->textures.idle, "../game_images/hero/skin_knight/idle/");
-  // init_texture(&hero->textures.attack_1, "../game_images/hero/skin_knight/attack_1/");
-  // init_texture(&hero->textures.attack_2, "../game_images/hero/skin_knight/attack_2/");
-  // init_texture(&hero->textures.attack_3, "../game_images/hero/skin_knight/attack_3/");
-  hero->current_texture = &hero->textures.attack_2;
+  init_texture(&hero->textures.idle, "../game_images/hero/skin_knight/idle/");
+  init_texture(&hero->textures.attack_1, "../game_images/hero/skin_knight/attack_1/");
+  init_texture(&hero->textures.attack_2, "../game_images/hero/skin_knight/attack_2/");
+  init_texture(&hero->textures.attack_3, "../game_images/hero/skin_knight/attack_3/");
+  set_current_texture_hero(&hero->textures.idle);
   hero->hitbox = {
     (int)hero->coordinates.x,
     (int)hero->coordinates.y,
@@ -27,7 +26,10 @@ void init_hero() {
   hero->jump_height = 100;
   hero->is_jumping = 0;
   hero->current_speed_gravity = 0;
-  hero->is_attack = ATTACK_HERO_NONE;
+  hero->attack.damage = 5;
+  hero->attack.cause_damage = 0;
+  hero->attack.type = ATTACK_HERO_NONE;
+  hero->attack.hitbox = { 0, 0, 0, 0 };
 }
 
 void load_hero(const char* load_file) {
@@ -35,10 +37,10 @@ void load_hero(const char* load_file) {
 }
 
 void de_init_hero() {
-  de_init_texture(&hero->textures.idle);
-  de_init_texture(&hero->textures.attack_1);
-  de_init_texture(&hero->textures.attack_2);
   de_init_texture(&hero->textures.attack_3);
+  de_init_texture(&hero->textures.attack_2);
+  de_init_texture(&hero->textures.attack_1);
+  de_init_texture(&hero->textures.idle);
   free(hero);
 }
 
@@ -67,6 +69,7 @@ void update_hero() {
   move_hero();
   collision_with_blocks_hero();
   collision_platforms_with_hero();
+  attack_hero();
   set_current_sprite_hero(130);
 }
 
@@ -105,29 +108,43 @@ void gravity_hero() {
   }
 }
 
+void set_current_texture_hero(Texture* texture) {
+  hero->current_number_sprite = 0;
+  hero->current_texture = texture;
+}
+
 void set_current_sprite_hero(double time_one_frame) {
   static double time = 0;
+  static Texture* current_texture = hero->current_texture;
+  if (current_texture != hero->current_texture) {
+    time = 0;
+    current_texture = hero->current_texture;
+  }
   time += dt;
   float height_difference = 0.f;
-  for (int i = 0; i < hero->current_texture->amount_sprite; ++i) {
-    if (time <= time_one_frame * i) {
-      hero->current_number_sprite = i;
-      height_difference = hero->hitbox.h - hero->current_texture->sprites[hero->current_number_sprite].size.h;
-      hero->hitbox.w = hero->current_texture->sprites[hero->current_number_sprite].size.w;
-      hero->hitbox.h = hero->current_texture->sprites[hero->current_number_sprite].size.h;
-      break;
+  float width_difference = 0.f;
+  if (time > current_texture->sprites[hero->current_number_sprite].rendering_time) {
+    hero->current_number_sprite++; 
+    if (hero->current_number_sprite == current_texture->amount_sprite) {
+      set_current_texture_hero(&hero->textures.idle);
+      hero->attack.type = ATTACK_HERO_NONE;
     }
-  }
-  if (time > time_one_frame * hero->current_texture->amount_sprite) {
-    hero->current_number_sprite = 0;
-    time = 0; 
-    height_difference = hero->hitbox.h - hero->current_texture->sprites[hero->current_number_sprite].size.h;
-    hero->hitbox.w = hero->current_texture->sprites[hero->current_number_sprite].size.w;
-    hero->hitbox.h = hero->current_texture->sprites[hero->current_number_sprite].size.h;
+    hitbox_change_due_new_sprite_hero(hero->current_number_sprite, &height_difference, &width_difference);
+    time = 0;
   }
   hero->coordinates.y += height_difference;
+  hero->coordinates.x -= width_difference;
   synchronize_hitbox_with_coordinates(&hero->hitbox, hero->coordinates);
 }
+
+void hitbox_change_due_new_sprite_hero(int number_sprite, float* height_difference, float* width_difference) {
+  hero->current_number_sprite = number_sprite;
+  *height_difference = hero->hitbox.h - hero->current_texture->sprites[hero->current_number_sprite].size.h;
+  if (hero->direction == DIRECTION_LEFT)
+    *width_difference = hero->current_texture->sprites[hero->current_number_sprite].size.w - hero->hitbox.w;
+  hero->hitbox.w = hero->current_texture->sprites[hero->current_number_sprite].size.w;
+  hero->hitbox.h = hero->current_texture->sprites[hero->current_number_sprite].size.h;
+} 
 
 int current_coefficient_jerk_hero() {
   return keyboard[SDL_SCANCODE_LSHIFT] ? hero->coefficient_jerk : 1;
@@ -222,24 +239,17 @@ void collision_platforms_with_hero() {
   synchronize_hitbox_with_coordinates(&hero->hitbox, hero->coordinates);
 }
 
-void select_attack_hero() {
-  // if (hero->is_attack != ATTACK_HERO_NONE)
-  //   return;
-  // if (keyboard[SDL_SCANCODE_J]) {
-  //   hero->is_attack = ATTACK_HERO_BASE_1;
-  // } else if (keyboard[SDL_SCANCODE_K]) {
-  //   hero->is_attack = ATTACK_HERO_BASE_2;
-  // }
-}
-
 void attack_hero() {
-  // select_attack_hero();
-  // if (hero->is_attack == ATTACK_HERO_NONE) {
-  //   return;
-  // }
-
-}
-
-void set_attack_texture_hero() {
-  // hero->current_texture
+  if (hero->attack.type != ATTACK_HERO_NONE)
+    return;
+  if (keyboard[SDL_SCANCODE_J]) {
+    hero->attack.type = ATTACK_HERO_BASE_1;
+    set_current_texture_hero(&hero->textures.attack_1);
+  } else if (keyboard[SDL_SCANCODE_K]) {
+    hero->attack.type = ATTACK_HERO_BASE_2;
+    set_current_texture_hero(&hero->textures.attack_2);
+  } else if (keyboard[SDL_SCANCODE_L]) {
+    hero->attack.type = ATTACK_HERO_BASE_3;
+    set_current_texture_hero(&hero->textures.attack_3);
+  }
 }

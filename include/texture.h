@@ -6,6 +6,7 @@
 struct Sprite {
   SDL_Texture* sprite;
   SDL_Rect size;
+  double rendering_time;
 };
 
 struct Texture {

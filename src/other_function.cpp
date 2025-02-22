@@ -79,6 +79,9 @@ void init_texture(Texture* some_texture, const char* path_to_the_sprite_director
 	fgetc(f);
   some_texture->sprites = (Sprite*)malloc(sizeof(Sprite) * some_texture->amount_sprite);
   for (int i = 0; i < some_texture->amount_sprite; ++i) {
+		Sprite* current_sprite = &some_texture->sprites[i];
+		fscanf(f, "%lf", &current_sprite->rendering_time);
+		fgetc(f);
     char sprite_name[buffer_size / 2];
     if (fgets(sprite_name, sizeof(sprite_name), f) == NULL) {
       printf("Ошибка: фактическое число спрайтов оказалось меньше, чем указано в файле %s в первой строке...", data);
@@ -91,7 +94,7 @@ void init_texture(Texture* some_texture, const char* path_to_the_sprite_director
 		}
 		char sprite_path[buffer_size];
 		snprintf(sprite_path, buffer_size, "%s%s", path_to_the_sprite_directory, sprite_name);
-    some_texture->sprites[i].sprite = load_texture_from_file(sprite_path, &some_texture->sprites[i].size);
+    current_sprite->sprite = load_texture_from_file(sprite_path, &current_sprite->size);
   }
   fclose(f);
 }
