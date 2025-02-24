@@ -3,7 +3,6 @@
 
 #include "sdl.h"
 #include "global_var.h"
-#include "application.h"
 #include "texture.h"
 #include "level.h"
 #include <math.h>
@@ -11,11 +10,20 @@
 
 
 enum Attack_type {
-  ATTACK_HERO_NONE,
   ATTACK_HERO_BASE_1,
   ATTACK_HERO_BASE_2,
   ATTACK_HERO_BASE_3,
+  ATTACK_HERO_NONE,
 };
+
+struct Attack_type_info {
+  float damage_multiplier; //Множитель урона
+  int number_sprite_for_damage; //Номер спрайта, с которого начинается нанесение урона.
+};
+
+//Для каждой атаки свой множитель и свой стартовый спрайт нанесения урона
+extern const int amount_attack_hero;
+extern Attack_type_info attack_info_hero[];
 
 extern struct Hero {
   SDL_Rect hitbox;
@@ -38,11 +46,11 @@ extern struct Hero {
   float jump_height;
   int is_jumping;
   struct {
-    float damage;
+    float pure_damage;
     int cause_damage;
     Attack_type type;
     SDL_Rect hitbox;
-  } attack;
+ } attack;
 } *hero;
 
 void init_hero();
@@ -52,7 +60,8 @@ void draw_hero();
 void update_hero();
 void move_hero();
 void gravity_hero();
-void hitbox_change_due_new_sprite_hero(int number_sprite, float* height_difference, float* width_difference);
+void hitbox_change_due_new_sprite_hero(int number_sprite, 
+  float* height_difference = NULL, float* width_difference = NULL);
 void set_current_texture_hero(Texture* texture);
 void set_current_sprite_hero(double time_one_frame);
 void collision_with_blocks_hero();
@@ -61,5 +70,8 @@ int collision_platform_with_hero(struct Platform* platform);
 int current_coefficient_jerk_hero();
 SDL_FPoint get_coordinates_for_new_game_hero();
 void attack_hero();
+float get_damage_hero(Attack_type type);
+void attack_logic_hero();
+void collision_attack_hero_with_enemy();
 
 #endif

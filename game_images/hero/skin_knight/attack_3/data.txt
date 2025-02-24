@@ -1,9 +1,9 @@
 8
-100 hero_knight_attack_3_0.png
+250 hero_knight_attack_3_0.png
 150 hero_knight_attack_3_1.png
-200 hero_knight_attack_3_2.png
-300 hero_knight_attack_3_3.png
-300 hero_knight_attack_3_4.png
-200 hero_knight_attack_3_5.png
-200 hero_knight_attack_3_6.png
-200 hero_knight_attack_3_7.png
+350 hero_knight_attack_3_2.png
+250 hero_knight_attack_3_3.png
+200 hero_knight_attack_3_4.png
+130 hero_knight_attack_3_5.png
+130 hero_knight_attack_3_6.png
+130 hero_knight_attack_3_7.png

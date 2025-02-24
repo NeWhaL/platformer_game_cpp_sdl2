@@ -1,0 +1,114 @@
+#include "../include/enemy_slime.h"
+
+Enemy_container *enemy_container;
+
+void malloc_enemy_container() {
+  enemy_container = (Enemy_container*)malloc(sizeof(Enemy_container));
+  enemy_container->amount_enemies = 0;
+  enemy_container->enemies = NULL;
+  for (int i = 0; i < level->amount_blocks.y; ++i) {
+    for (int j = 0; j < level->amount_blocks.x; ++j) {
+      Blocks block_spawn_enemy = Blocks(level->map[i][j]);
+      if (block_spawn_enemy == BLOCK_SPAWN_SLIME)
+        enemy_container->amount_enemies++; 
+    }
+  }
+  enemy_container->enemies = (Enemy_base**)malloc(sizeof(Enemy_base*) * enemy_container->amount_enemies);
+}
+
+// void init_enemies(Level_number level_number) {
+void init_enemies() {
+  malloc_enemy_container();
+  const char* slime_data_file = "../game_data/level_1/slime.txt";
+  // switch (level_number) {
+  //   case LEVEL_1: {
+  //     slime_data_file = "../game_data/level_1/slime.txt";
+  //   } break;
+  //   case LEVEL_2: {
+  //     slime_data_file = "../game_data/level_2/slime.txt";
+  //   } break;
+  //   case LEVEL_3: {
+  //     slime_data_file = "../game_data/level_3/slime.txt";
+  //   } break;
+  // }
+
+  //здесь проинициализировать все текстуры противников
+  init_texture(&enemy_container->textures.slime, "../game_images/enemy/slime/");
+
+  //Данные для каждого слайма
+  Enemy_slime slime;
+  FILE* f = fopen(slime_data_file, "r");
+  if (f) {
+    slime.base.health = read_from_file_double(f);
+    slime.base.damage = read_from_file_double(f);
+    slime.base.speed = read_from_file_double(f); 
+  }
+  fclose(f);
+  int current_index_enemy = 0;
+  for (int i = 0; i < level->amount_blocks.y; ++i) {
+    for (int j = 0; j < level->amount_blocks.x; ++j) {
+      Blocks block_spawn_enemy = Blocks(level->map[i][j]);
+      Enemy_base* enemy = NULL;
+      switch (block_spawn_enemy) {
+        case BLOCK_SPAWN_SLIME: {
+          Enemy_slime* new_slime = (Enemy_slime*)malloc(sizeof(Enemy_slime));
+          *new_slime = slime;
+          new_slime->base.full_enemy = new_slime;
+          new_slime->base.type = ENEMY_SLIME;
+          new_slime->base.coordinates = { 
+            float(level->real_size_edge_block * j),
+            float(level->real_size_edge_block * i)
+          };
+          new_slime->base.hitbox.w = enemy_container->textures.slime.sprites[0].size.w;
+          new_slime->base.hitbox.h = enemy_container->textures.slime.sprites[0].size.h;
+          synchronize_hitbox_with_coordinates(&new_slime->base.hitbox, new_slime->base.coordinates);
+          new_slime->base.direction = DIRECTION_LEFT;
+          new_slime->base.current_number_sprite = 0;
+          enemy = &new_slime->base;
+        } break;
+      }
+      if (enemy != NULL)
+        enemy_container->enemies[current_index_enemy++] = enemy;
+    }
+  }
+}
+
+void de_init_enemies() {
+  de_init_texture(&enemy_container->textures.slime);
+
+  for (int i = 0; i < enemy_container->amount_enemies; ++i) {
+    Enemy_base* enemy = enemy_container->enemies[i];
+    switch (enemy->type) {
+      case ENEMY_SLIME: {
+        Enemy_slime* slime = (Enemy_slime*)enemy->full_enemy;
+        free(slime);
+      } break;
+    }
+  }
+  free(enemy_container->enemies);
+  free(enemy_container);
+}
+
+void updating_enemies() {
+  for (int i = 0; i < enemy_container->amount_enemies; ++i) {
+    Enemy_base* enemy = enemy_container->enemies[i];
+    gravity(&enemy->coordinates);
+    synchronize_hitbox_with_coordinates(&enemy->hitbox, enemy->coordinates);
+  }
+}
+
+void draw_enemies() {
+  for (int i = 0; i < enemy_container->amount_enemies; ++i) {
+    Enemy_base* enemy = enemy_container->enemies[i];
+    switch (enemy->type) {
+      case ENEMY_SLIME: {
+        SDL_RenderCopy(
+          renderer, 
+          enemy_container->textures.slime.sprites[enemy->current_number_sprite].sprite,
+          NULL,
+          &enemy->hitbox   
+        );
+      } break;
+    }
+  }
+}

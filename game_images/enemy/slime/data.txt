@@ -1,0 +1,9 @@
+8
+150 slime_0.png
+150 slime_1.png
+150 slime_2.png
+150 slime_3.png
+150 slime_4.png
+150 slime_5.png
+150 slime_6.png
+150 slime_7.png

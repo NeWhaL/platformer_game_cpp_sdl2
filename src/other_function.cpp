@@ -104,3 +104,10 @@ void de_init_texture(Texture* texture) {
     SDL_DestroyTexture(texture->sprites[i].sprite);
   free(texture->sprites);
 }
+
+double read_from_file_double(FILE* file) {
+	double data = 0.;
+	fscanf(file, "%lf", &data);
+	fgetc(file);
+	return data;
+}

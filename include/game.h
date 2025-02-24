@@ -8,6 +8,7 @@
 #include "font.h"
 #include "hero.h"
 #include "level.h"
+#include "enemy_base.h"
 
 void init_game(const char* save_file);
 void game(const char* save_file = NULL);

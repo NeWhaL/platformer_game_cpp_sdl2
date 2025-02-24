@@ -22,5 +22,6 @@ void synchronize_hitbox_with_coordinates(SDL_Rect* hitbox, SDL_FPoint coordinate
 void gravity(SDL_FPoint* coordinates);
 void init_texture(Texture* some_texture, const char* path_to_the_sprite_directory);
 void de_init_texture(Texture* texture);
+double read_from_file_double(FILE* file);
 
 #endif

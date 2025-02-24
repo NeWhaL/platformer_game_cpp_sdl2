@@ -1,6 +1,12 @@
 #include "../include/hero.h"
 
 Hero* hero;
+const int amount_attack_hero = 3;
+Attack_type_info attack_info_hero[amount_attack_hero] = {
+  {1.0f, 2},
+  {1.1f, 1},
+  {1.2f, 2},
+};
 
 void init_hero() {
   if (!(hero = (Hero*)malloc(sizeof(Hero)))) {
@@ -26,7 +32,7 @@ void init_hero() {
   hero->jump_height = 100;
   hero->is_jumping = 0;
   hero->current_speed_gravity = 0;
-  hero->attack.damage = 5;
+  hero->attack.pure_damage = 5;
   hero->attack.cause_damage = 0;
   hero->attack.type = ATTACK_HERO_NONE;
   hero->attack.hitbox = { 0, 0, 0, 0 };
@@ -74,6 +80,8 @@ void update_hero() {
 }
 
 void move_hero() {
+  if (hero->attack.type != ATTACK_HERO_NONE)
+    return;
   if (keyboard[SDL_SCANCODE_A]) {
     hero->direction = DIRECTION_LEFT;
     hero->coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero());
@@ -88,7 +96,7 @@ void gravity_hero() {
   static float jump_speed_y = 0;
   if (hero->current_speed_gravity < speed_gravity)
     hero->current_speed_gravity += speed_dt(speed_gravity);
-  if (keyboard[SDL_SCANCODE_SPACE] && hero->is_standing) {
+  if (keyboard[SDL_SCANCODE_SPACE] && hero->is_standing && hero->attack.type == ATTACK_HERO_NONE) {
     hero->is_jumping = 1;
     jump_speed_y = sqrt(speed_gravity * hero->jump_height);
     hero->is_standing = 0;
@@ -139,8 +147,9 @@ void set_current_sprite_hero(double time_one_frame) {
 
 void hitbox_change_due_new_sprite_hero(int number_sprite, float* height_difference, float* width_difference) {
   hero->current_number_sprite = number_sprite;
-  *height_difference = hero->hitbox.h - hero->current_texture->sprites[hero->current_number_sprite].size.h;
-  if (hero->direction == DIRECTION_LEFT)
+  if (height_difference)
+    *height_difference = hero->hitbox.h - hero->current_texture->sprites[hero->current_number_sprite].size.h;
+  if (hero->direction == DIRECTION_LEFT && width_difference != NULL)
     *width_difference = hero->current_texture->sprites[hero->current_number_sprite].size.w - hero->hitbox.w;
   hero->hitbox.w = hero->current_texture->sprites[hero->current_number_sprite].size.w;
   hero->hitbox.h = hero->current_texture->sprites[hero->current_number_sprite].size.h;
@@ -156,7 +165,8 @@ void collision_with_blocks_hero() {
   for (int i = 0; i < level->amount_blocks.y; ++i) {
     for (int j = 0; j < level->amount_blocks.x; ++j) {
       Blocks b_type = Blocks(level->map[i][j]);
-      if (b_type != BLOCK_SPACE && b_type != BLOCK_PLATFORM_BASE && b_type != BLOCK_SPAWN_HERO) {
+      if (b_type != BLOCK_SPACE && b_type != BLOCK_PLATFORM_BASE && b_type != BLOCK_SPAWN_HERO &&
+          b_type != BLOCK_SPAWN_SLIME) {
         position_block.x = j * level->real_size_edge_block;
         position_block.y = i * level->real_size_edge_block;
         switch (collision_with_block(&hero->hitbox, &position_block)) {
@@ -240,16 +250,46 @@ void collision_platforms_with_hero() {
 }
 
 void attack_hero() {
-  if (hero->attack.type != ATTACK_HERO_NONE)
+  if (hero->attack.type != ATTACK_HERO_NONE || !hero->is_standing) {
+    attack_logic_hero();
     return;
+  }
   if (keyboard[SDL_SCANCODE_J]) {
     hero->attack.type = ATTACK_HERO_BASE_1;
     set_current_texture_hero(&hero->textures.attack_1);
+    hitbox_change_due_new_sprite_hero(hero->current_number_sprite);
   } else if (keyboard[SDL_SCANCODE_K]) {
     hero->attack.type = ATTACK_HERO_BASE_2;
     set_current_texture_hero(&hero->textures.attack_2);
+    hitbox_change_due_new_sprite_hero(hero->current_number_sprite);
   } else if (keyboard[SDL_SCANCODE_L]) {
     hero->attack.type = ATTACK_HERO_BASE_3;
     set_current_texture_hero(&hero->textures.attack_3);
+    hitbox_change_due_new_sprite_hero(hero->current_number_sprite);
   }
+}
+
+void attack_logic_hero() {
+  switch (hero->attack.type) {
+    case ATTACK_HERO_BASE_1: {
+      if (attack_info_hero[hero->attack.type].number_sprite_for_damage == hero->current_number_sprite) {
+        float damage = get_damage_hero(hero->attack.type);
+        //Получить хитбокс удара и проверить коллиизию с противниками.
+      }
+    } break;
+    case ATTACK_HERO_BASE_2: {
+
+    } break;
+    case ATTACK_HERO_BASE_3: {
+
+    } break;
+  }
+}
+
+float get_damage_hero(Attack_type type) {
+  return hero->attack.pure_damage * attack_info_hero[hero->attack.type].damage_multiplier;
+}
+
+void collision_attack_hero_with_enemy() {
+
 }

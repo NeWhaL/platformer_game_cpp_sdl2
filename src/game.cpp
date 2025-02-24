@@ -8,6 +8,8 @@ void init_game(const char* save_file) {
   if (!save_file) { 
     init_level(LEVEL_1);
     init_hero(); 
+    // init_enemies(LEVEL_1);
+    init_enemies();
     is_init_game = 0;
   } else {
     load_level(save_file);
@@ -18,6 +20,7 @@ void init_game(const char* save_file) {
 }
 
 void de_init_game() {
+  de_init_enemies();
   de_init_hero();
   de_init_level();
 }
@@ -49,12 +52,14 @@ void updating_game_events() {
 
 void updating_game_logic() {
   updating_dt();
-  update_hero();
   updating_level();
+  updating_enemies();
+  update_hero();
 }
 
 void draw_game_frame() {
   draw_level();
+  draw_enemies();
   draw_hero();
   SDL_RenderPresent(renderer);
 }
