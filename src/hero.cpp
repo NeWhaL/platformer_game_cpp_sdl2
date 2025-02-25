@@ -177,7 +177,7 @@ void collision_with_blocks_hero() {
             hero->coordinates.x += speed_dt(hero->speed * current_coefficient_jerk_hero());
           } break;
           case COLLISION_UP: {
-            hero->coordinates.y -= speed_dt(speed_gravity);
+            hero->coordinates.y -= speed_dt(hero->current_speed_gravity);
             hero->current_speed_gravity = 0;
             is_hero_standing = 1;
           } break;

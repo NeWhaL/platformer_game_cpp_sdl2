@@ -64,6 +64,8 @@ void init_enemies() {
           synchronize_hitbox_with_coordinates(&new_slime->base.hitbox, new_slime->base.coordinates);
           new_slime->base.direction = DIRECTION_LEFT;
           new_slime->base.current_number_sprite = 0;
+          new_slime->base.current_speed_gravity = 0;
+          new_slime->base.is_standing = 0;
           enemy = &new_slime->base;
         } break;
       }
@@ -92,9 +94,64 @@ void de_init_enemies() {
 void updating_enemies() {
   for (int i = 0; i < enemy_container->amount_enemies; ++i) {
     Enemy_base* enemy = enemy_container->enemies[i];
-    gravity(&enemy->coordinates);
+    gravity_enemy(enemy);
+    switch (enemy->type) {
+      case ENEMY_SLIME: {
+        Enemy_slime* slime = (Enemy_slime*)enemy->full_enemy;
+        move_enemy_slime(slime);
+      } break;
+    }
+    collision_with_blocks_enemy(enemy);
     synchronize_hitbox_with_coordinates(&enemy->hitbox, enemy->coordinates);
   }
+}
+
+void gravity_enemy(Enemy_base* enemy) {
+  if (enemy->current_speed_gravity < speed_gravity)
+    enemy->current_speed_gravity += speed_dt(speed_gravity);
+  enemy->coordinates.y += speed_dt(enemy->current_speed_gravity); 
+}
+
+void collision_with_blocks_enemy(Enemy_base* enemy) {
+  SDL_Rect position_block = { 0, 0, level->real_size_edge_block, level->real_size_edge_block };
+  int is_enemy_standing = 0;
+  for (int i = 0; i < level->amount_blocks.y; ++i) {
+    for (int j = 0; j < level->amount_blocks.x; ++j) {
+      Blocks b_type = Blocks(level->map[i][j]);
+      if (b_type != BLOCK_SPACE && b_type != BLOCK_PLATFORM_BASE && b_type != BLOCK_SPAWN_HERO &&
+          b_type != BLOCK_SPAWN_SLIME) {
+        position_block.x = j * level->real_size_edge_block;
+        position_block.y = i * level->real_size_edge_block;
+        switch (collision_with_block(&enemy->hitbox, &position_block)) {
+          case COLLISION_LEFT: {
+            enemy->coordinates.x -= speed_dt(enemy->speed);
+            enemy->direction = DIRECTION_LEFT;
+          } break;
+          case COLLISION_RIGHT: {
+            enemy->coordinates.x += speed_dt(enemy->speed);
+            enemy->direction = DIRECTION_RIGHT;
+          } break;
+          case COLLISION_UP: {
+            enemy->coordinates.y -= speed_dt(enemy->current_speed_gravity);
+            enemy->current_speed_gravity = 0;
+            is_enemy_standing = 1;
+          } break;
+          case COLLISION_DOWN: {
+            enemy->coordinates.y += speed_dt(enemy->current_speed_gravity);
+          } break;
+        }
+      }
+    }
+  }
+  enemy->is_standing = is_enemy_standing;
+  synchronize_hitbox_with_coordinates(&enemy->hitbox, enemy->coordinates);
+}
+
+void move_enemy_slime(Enemy_slime* enemy) {
+  if (enemy->base.direction == DIRECTION_LEFT)
+    enemy->base.coordinates.x -= speed_dt(enemy->base.speed);
+  else
+    enemy->base.coordinates.x += speed_dt(enemy->base.speed);
 }
 
 void draw_enemies() {
@@ -102,12 +159,23 @@ void draw_enemies() {
     Enemy_base* enemy = enemy_container->enemies[i];
     switch (enemy->type) {
       case ENEMY_SLIME: {
-        SDL_RenderCopy(
-          renderer, 
-          enemy_container->textures.slime.sprites[enemy->current_number_sprite].sprite,
-          NULL,
-          &enemy->hitbox   
-        );
+        if (enemy->direction == DIRECTION_LEFT) {
+          SDL_RenderCopy(
+            renderer, 
+            enemy_container->textures.slime.sprites[enemy->current_number_sprite].sprite,
+            NULL,
+            &enemy->hitbox   
+          );
+        } else {
+          SDL_RenderCopyEx(
+            renderer, 
+            enemy_container->textures.slime.sprites[enemy->current_number_sprite].sprite,
+            NULL,
+            &enemy->hitbox,
+            0, NULL, SDL_FLIP_HORIZONTAL
+          );
+        }
+        
       } break;
     }
   }

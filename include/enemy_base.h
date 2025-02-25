@@ -26,6 +26,8 @@ struct Enemy_base {
   SDL_FPoint coordinates;
   SDL_Rect hitbox;
   int current_number_sprite;
+  float current_speed_gravity;
+  int is_standing;
 };
 
 extern struct Enemy_container {
@@ -39,6 +41,8 @@ void malloc_enemy_container();
 void init_enemies();
 void de_init_enemies();
 void updating_enemies();
+void gravity_enemy(Enemy_base* enemy);
+void collision_with_blocks_enemy(Enemy_base* enemy);
 void draw_enemies();
 
 #endif

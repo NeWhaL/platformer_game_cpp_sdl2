@@ -7,4 +7,6 @@ struct Enemy_slime {
   Enemy_base base;
 };
 
+void move_enemy_slime(Enemy_slime* enemy);
+
 #endif
