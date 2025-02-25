@@ -143,7 +143,7 @@ void init_platforms() {
         platform->amount_sprite = 1;
         platform->coordinates = { float(j * level->real_size_edge_block), float(i * level->real_size_edge_block) };
         platform->speed = 50;
-        platform->type = PLATFORM_BREAKING;
+        platform->type = PLATFORM_BASE;
         platform->hitbox = {
           int(platform->coordinates.x),
           int(platform->coordinates.y),
@@ -234,7 +234,7 @@ void collision_platform_with_blocks(Platform* platform) {
         continue;
       SDL_Rect hitbox_block = { level->real_size_edge_block * j, level->real_size_edge_block * i, 
         level->real_size_edge_block, level->real_size_edge_block };
-      switch (collision_with_block(&platform->hitbox, &hitbox_block)) {
+      switch (collision_of_two_objects(&platform->hitbox, &hitbox_block)) {
         case COLLISION_LEFT:
           platform->direction = DIRECTION_LEFT;
         break;

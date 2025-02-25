@@ -99,6 +99,7 @@ void updating_enemies() {
       case ENEMY_SLIME: {
         Enemy_slime* slime = (Enemy_slime*)enemy->full_enemy;
         move_enemy_slime(slime);
+        collision_enemy_slime_with_hero(slime);
       } break;
     }
     collision_with_blocks_enemy(enemy);
@@ -122,7 +123,7 @@ void collision_with_blocks_enemy(Enemy_base* enemy) {
           b_type != BLOCK_SPAWN_SLIME) {
         position_block.x = j * level->real_size_edge_block;
         position_block.y = i * level->real_size_edge_block;
-        switch (collision_with_block(&enemy->hitbox, &position_block)) {
+        switch (collision_of_two_objects(&enemy->hitbox, &position_block)) {
           case COLLISION_LEFT: {
             enemy->coordinates.x -= speed_dt(enemy->speed);
             enemy->direction = DIRECTION_LEFT;
@@ -178,5 +179,45 @@ void draw_enemies() {
         
       } break;
     }
+  }
+}
+
+void collision_enemy_slime_with_hero(Enemy_slime* enemy) {
+
+  switch (collision_of_two_objects(&hero->hitbox, &enemy->base.hitbox)) {
+    case COLLISION_UP: {
+      hero->coordinates.y -= speed_dt(hero->current_speed_gravity);
+    } break;
+    case COLLISION_DOWN: {
+      hero->coordinates.y += speed_dt(hero->current_speed_gravity);
+    } break;
+    case COLLISION_RIGHT: {
+      if (enemy->base.direction == DIRECTION_LEFT) {
+        if (hero->speed * current_coefficient_jerk_hero() > enemy->base.speed)
+          enemy->base.coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero() + enemy->base.speed); 
+        else
+          enemy->base.coordinates.x -= speed_dt(enemy->base.speed); 
+      }
+      else {
+        if (hero->speed * current_coefficient_jerk_hero() > enemy->base.speed)
+          enemy->base.coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero() + enemy->base.speed); 
+        else
+          enemy->base.coordinates.x -= speed_dt(enemy->base.speed); 
+      }
+    } break;
+    case COLLISION_LEFT: {
+      if (enemy->base.direction == DIRECTION_LEFT) {
+        if (hero->speed * current_coefficient_jerk_hero() > enemy->base.speed)
+          enemy->base.coordinates.x += speed_dt(hero->speed * current_coefficient_jerk_hero() + enemy->base.speed); 
+        else
+          enemy->base.coordinates.x += speed_dt(enemy->base.speed); 
+      }
+      else {
+        if (hero->speed * current_coefficient_jerk_hero() > enemy->base.speed)
+          enemy->base.coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero() + enemy->base.speed); 
+        else
+          enemy->base.coordinates.x -= speed_dt(enemy->base.speed); 
+      }
+    } break;
   }
 }

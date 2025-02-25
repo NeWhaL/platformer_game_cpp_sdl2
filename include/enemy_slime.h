@@ -8,5 +8,6 @@ struct Enemy_slime {
 };
 
 void move_enemy_slime(Enemy_slime* enemy);
+void collision_enemy_slime_with_hero(Enemy_slime* enemy);
 
 #endif

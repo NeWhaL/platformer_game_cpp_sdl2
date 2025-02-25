@@ -17,7 +17,7 @@ void updating_mouse_state();
 void updating_dt();
 float speed_dt(float speed);
 SDL_Texture* load_texture_from_file(const char* filename, SDL_Rect* size = NULL);
-collision_direction collision_with_block(const SDL_Rect *hitbox_anyone, const SDL_Rect* hitbox_block);
+collision_direction collision_of_two_objects(const SDL_Rect *hitbox_anyone, const SDL_Rect* hitbox_block);
 void synchronize_hitbox_with_coordinates(SDL_Rect* hitbox, SDL_FPoint coordinates);
 void gravity(SDL_FPoint* coordinates);
 void init_texture(Texture* some_texture, const char* path_to_the_sprite_directory);

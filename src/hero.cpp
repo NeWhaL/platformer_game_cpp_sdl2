@@ -169,7 +169,7 @@ void collision_with_blocks_hero() {
           b_type != BLOCK_SPAWN_SLIME) {
         position_block.x = j * level->real_size_edge_block;
         position_block.y = i * level->real_size_edge_block;
-        switch (collision_with_block(&hero->hitbox, &position_block)) {
+        switch (collision_of_two_objects(&hero->hitbox, &position_block)) {
           case COLLISION_LEFT: {
             hero->coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero());
           } break;
@@ -195,7 +195,7 @@ void collision_with_blocks_hero() {
 
 int collision_platform_with_hero(struct Platform* platform) {
   int is_hero_standing = 0;
-  switch (collision_with_block(&hero->hitbox, &platform->hitbox)) {
+  switch (collision_of_two_objects(&hero->hitbox, &platform->hitbox)) {
     case COLLISION_UP: {
       if (platform->direction == DIRECTION_LEFT)
         hero->coordinates.x -= speed_dt(platform->speed);
@@ -207,7 +207,6 @@ int collision_platform_with_hero(struct Platform* platform) {
     case COLLISION_LEFT: {
       if (platform->direction == hero->direction)
         hero->coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero());
-      //В случае, если платформа и герой двигаются в противоположных направлениях, то коллизия в этом случае не корректно работает
       else
         hero->coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero() + platform->speed);
     } break;
@@ -218,7 +217,6 @@ int collision_platform_with_hero(struct Platform* platform) {
     case COLLISION_RIGHT: {
       if (platform->direction == hero->direction)
         hero->coordinates.x += speed_dt(hero->speed * current_coefficient_jerk_hero());
-      //В случае, если платформа и герой двигаются в противоположных направлениях, то коллизия в этом случае не корректно работает
       else
         hero->coordinates.x += speed_dt(hero->speed * current_coefficient_jerk_hero() + platform->speed);
     } break;

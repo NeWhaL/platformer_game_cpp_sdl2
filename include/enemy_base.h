@@ -7,6 +7,7 @@
 #include "texture.h"
 #include "direction.h"
 #include "other_function.h"
+#include "hero.h"
 
 struct Enemy_textures {
   Texture slime;
@@ -43,6 +44,7 @@ void de_init_enemies();
 void updating_enemies();
 void gravity_enemy(Enemy_base* enemy);
 void collision_with_blocks_enemy(Enemy_base* enemy);
+// void collision_enemy_with_hero(Enemy_base* enemy);
 void draw_enemies();
 
 #endif
