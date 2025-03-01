@@ -1,0 +1,4 @@
+3
+100 hero_knight_jump_0.png
+100 hero_knight_jump_1.png
+100 hero_knight_jump_2.png

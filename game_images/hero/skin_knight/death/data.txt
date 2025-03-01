@@ -1,0 +1,11 @@
+10
+100 hero_knight_death_0.png
+100 hero_knight_death_1.png
+100 hero_knight_death_2.png
+100 hero_knight_death_3.png
+100 hero_knight_death_4.png
+100 hero_knight_death_5.png
+100 hero_knight_death_6.png
+100 hero_knight_death_7.png
+100 hero_knight_death_8.png
+100 hero_knight_death_9.png

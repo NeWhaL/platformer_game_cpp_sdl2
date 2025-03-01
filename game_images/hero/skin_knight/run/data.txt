@@ -1,0 +1,11 @@
+10
+100 hero_knight_run_0.png
+100 hero_knight_run_1.png
+100 hero_knight_run_2.png
+100 hero_knight_run_3.png
+100 hero_knight_run_4.png
+100 hero_knight_run_5.png
+100 hero_knight_run_6.png
+100 hero_knight_run_7.png
+100 hero_knight_run_8.png
+100 hero_knight_run_9.png
