@@ -124,26 +124,28 @@ void jump_hero() {
 
 void move_hero() {
   if (hero->attack.type != ATTACK_HERO_NONE)
-    return;
-  if (hero->state == HERO_JUMP)
-    return;
+    return; 
   if (keyboard[SDL_SCANCODE_A]) {
     hero->direction = DIRECTION_LEFT;
-    hero->state = HERO_WALK;
+    if (hero->state != HERO_JUMP)
+      hero->state = HERO_WALK;
     hero->coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero());
   } else if (keyboard[SDL_SCANCODE_D]) {
     hero->direction = DIRECTION_RIGHT;
-    hero->state = HERO_WALK;
+    if (hero->state != HERO_JUMP)
+      hero->state = HERO_WALK;
     hero->coordinates.x += speed_dt(hero->speed * current_coefficient_jerk_hero());
   } else {
-    hero->state = HERO_IDLE;
+    if (hero->state != HERO_JUMP)
+      hero->state = HERO_IDLE;
   }
   synchronize_hitbox_with_coordinates(&hero->hitbox, hero->coordinates);
 }
 
 float current_coefficient_jerk_hero() {
   if (keyboard[SDL_SCANCODE_LSHIFT]) {
-    hero->state = HERO_RUN;
+    if (hero->state != HERO_JUMP)
+      hero->state = HERO_RUN;
     return hero->coefficient_jerk;
   }
   return 1;
