@@ -23,5 +23,6 @@ void gravity(SDL_FPoint* coordinates);
 void init_texture(Texture* some_texture, const char* path_to_the_sprite_directory);
 void de_init_texture(Texture* texture);
 double read_from_file_double(FILE* file);
+double time_for_one_texture_iteration(Texture* texture);
 
 #endif

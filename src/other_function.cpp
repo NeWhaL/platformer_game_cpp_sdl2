@@ -115,3 +115,10 @@ double read_from_file_double(FILE* file) {
 	fgetc(file);
 	return data;
 }
+
+double time_for_one_texture_iteration(Texture* texture) {
+	double total_time = 0;
+	for (int i = 0; i < texture->amount_sprite; ++i)
+		total_time += texture->sprites[i].rendering_time;
+	return total_time;
+}

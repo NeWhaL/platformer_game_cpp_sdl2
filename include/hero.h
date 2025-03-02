@@ -30,6 +30,7 @@ enum Attack_type {
 struct Attack_type_info {
   float damage_multiplier; //Множитель урона
   int number_sprite_for_damage; //Номер спрайта, с которого начинается нанесение урона.
+  double total_impact_time; //Время, требуемое для отработки удара
 };
 
 //Для каждой атаки свой множитель и свой стартовый спрайт нанесения урона
@@ -69,6 +70,7 @@ extern struct Hero {
 } *hero;
 
 void init_hero();
+void init_attack_type_info_hero();
 void load_hero(const char* load_file);
 void de_init_hero();
 void draw_hero();

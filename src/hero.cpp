@@ -2,11 +2,7 @@
 
 Hero* hero;
 const int amount_attack_hero = 3;
-Attack_type_info attack_info_hero[amount_attack_hero] = {
-  {1.0f, 2},
-  {1.1f, 1},
-  {1.2f, 2},
-};
+Attack_type_info attack_info_hero[amount_attack_hero];
 
 void init_hero() {
   if (!(hero = (Hero*)malloc(sizeof(Hero)))) {
@@ -36,11 +32,24 @@ void init_hero() {
   hero->direction = DIRECTION_RIGHT;
   hero->jump_height = 100;
   hero->current_speed_gravity = 0;
+  init_attack_type_info_hero();
   hero->attack.pure_damage = 5;
   hero->attack.cause_damage = 0;
   hero->attack.type = ATTACK_HERO_NONE;
   hero->attack.hitbox = { 0, 0, 0, 0 };
   hero->state = HERO_IDLE;
+}
+
+void init_attack_type_info_hero() {
+  attack_info_hero[ATTACK_HERO_BASE_1] = {
+    1.0f, 2, time_for_one_texture_iteration(&hero->textures.attack_1)
+  };
+  attack_info_hero[ATTACK_HERO_BASE_2] = {
+    1.1f, 1, time_for_one_texture_iteration(&hero->textures.attack_2)
+  };
+  attack_info_hero[ATTACK_HERO_BASE_3] = {
+    1.2f, 2, time_for_one_texture_iteration(&hero->textures.attack_3)
+  };
 }
 
 void load_hero(const char* load_file) {
@@ -123,7 +132,7 @@ void jump_hero() {
 }
 
 void move_hero() {
-  if (hero->attack.type != ATTACK_HERO_NONE)
+  if (hero->state == HERO_ATTACK)
     return; 
   if (keyboard[SDL_SCANCODE_A]) {
     hero->direction = DIRECTION_LEFT;
@@ -264,35 +273,40 @@ void attack_hero() {
   if (hero->state == HERO_ATTACK) {
     attack_logic_hero();
     return;
-  }
+  } else if (hero->state != HERO_IDLE && hero->state != HERO_WALK && hero->state != HERO_RUN)
+    return;
   if (keyboard[SDL_SCANCODE_J]) {
+    hero->state = HERO_ATTACK;
     hero->attack.type = ATTACK_HERO_BASE_1;
   } else if (keyboard[SDL_SCANCODE_K]) {
+    hero->state = HERO_ATTACK;
     hero->attack.type = ATTACK_HERO_BASE_2;
   } else if (keyboard[SDL_SCANCODE_L]) {
+    hero->state = HERO_ATTACK;
     hero->attack.type = ATTACK_HERO_BASE_3;
   }
 }
 
 void attack_logic_hero() {
-  switch (hero->attack.type) {
-    case ATTACK_HERO_BASE_1: {
-      if (attack_info_hero[hero->attack.type].number_sprite_for_damage == hero->current_number_sprite) {
-        float damage = get_damage_hero(hero->attack.type);
-        //Получить хитбокс удара и проверить коллиизию с противниками.
-      }
-    } break;
-    case ATTACK_HERO_BASE_2: {
-
-    } break;
-    case ATTACK_HERO_BASE_3: {
-
-    } break;
+  static double time = 0;
+  time += dt;
+  if (time >= attack_info_hero[hero->attack.type].total_impact_time) {
+    hero->state = HERO_IDLE;
+    hero->attack.type = ATTACK_HERO_NONE;
+    time = 0;
+    return;
+  } else if (attack_info_hero[hero->attack.type].number_sprite_for_damage == hero->current_number_sprite) {
+    float damage = get_damage_hero(hero->attack.type);
+    //Получить хитбокс удара и проверить коллиизию с противниками.
   }
 }
 
 float get_damage_hero(Attack_type type) {
   return hero->attack.pure_damage * attack_info_hero[hero->attack.type].damage_multiplier;
+}
+
+void collision_attack_hero_with_enemy() {
+
 }
 
 void determine_current_texture_hero() {
@@ -353,14 +367,15 @@ void set_current_texture_hero(Texture* texture) {
 
 void set_current_sprite_hero() {
   static double time = 0;
+  time += dt;
   static Texture* current_texture = hero->current_texture;
+  float height_difference = 0.f;
+  float width_difference = 0.f;
   if (current_texture != hero->current_texture) {
     time = 0;
     current_texture = hero->current_texture;
+    hitbox_change_due_new_sprite_hero(hero->current_number_sprite, &height_difference, &width_difference);
   }
-  time += dt;
-  float height_difference = 0.f;
-  float width_difference = 0.f;
   if (time > current_texture->sprites[hero->current_number_sprite].rendering_time) {
     hero->current_number_sprite++; 
     if (hero->current_number_sprite == current_texture->amount_sprite) {
@@ -375,8 +390,4 @@ void set_current_sprite_hero() {
   hero->coordinates.y += height_difference;
   hero->coordinates.x -= width_difference;
   synchronize_hitbox_with_coordinates(&hero->hitbox, hero->coordinates);
-}
-
-void collision_attack_hero_with_enemy() {
-
 }
