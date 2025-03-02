@@ -12,6 +12,7 @@ struct Sprite {
 struct Texture {
   Sprite* sprites;
   int amount_sprite;
+  int repeat_animation;
 };
 
 #endif

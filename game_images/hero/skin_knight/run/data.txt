@@ -1,3 +1,4 @@
+1
 10
 100 hero_knight_run_0.png
 100 hero_knight_run_1.png

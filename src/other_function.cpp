@@ -75,6 +75,10 @@ void init_texture(Texture* some_texture, const char* path_to_the_sprite_director
     printf("Не удалось загрузить спрайты из %s...\n", path_to_the_sprite_directory);
     de_init_application(1);
   }
+	//переменная, отвечающая за цикличность анимации.
+	fscanf(f, "%d", &some_texture->repeat_animation);
+	fgetc(f);
+	//переменная, отвечающая за количество спрайтов в текстуре.
   fscanf(f, "%d", &some_texture->amount_sprite);
 	fgetc(f);
   some_texture->sprites = (Sprite*)malloc(sizeof(Sprite) * some_texture->amount_sprite);

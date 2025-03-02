@@ -82,74 +82,32 @@ void draw_hero() {
 
 void update_hero() {
   gravity_hero();
-  jump_hero();
   move_hero();
   if (collision_with_blocks_hero() == HERO_FALL &&
-      collision_platforms_with_hero() == HERO_FALL) {
+      collision_platforms_with_hero() == HERO_FALL &&
+      hero->state != HERO_JUMP) {
     hero->state = HERO_FALL;
   }
+  jump_hero();
   attack_hero();
   determine_current_texture_hero();
   set_current_sprite_hero();
 }
 
 void gravity_hero() {
-  if (hero->state == HERO_JUMP) {
-    hero->current_speed_gravity += speed_dt(speed_gravity);
-    return;
-  }
   if (hero->state == HERO_IDLE || hero->state == HERO_WALK || hero->state == HERO_RUN) {
     hero->current_speed_gravity = 0;
     return;
-  } 
-  if (hero->current_speed_gravity < speed_gravity) {
-    hero->state = HERO_FALL;
+  } else { 
     hero->current_speed_gravity += speed_dt(speed_gravity);
   }
-  hero->coordinates.y += speed_dt(hero->current_speed_gravity);
-
-
-  // static float jump_speed_y = 0;
-  // if (hero->current_speed_gravity < speed_gravity)
-  //   hero->current_speed_gravity += speed_dt(speed_gravity);
-  // //Если игрок находился в состоянии hero->is_standing
-  // // if (keyboard[SDL_SCANCODE_SPACE] && hero->is_standing && hero->attack.type == ATTACK_HERO_NONE) {
-  // if (keyboard[SDL_SCANCODE_SPACE] && hero->state == HERO_IDLE) {
-  //   // hero->state = HERO_JUMP;
-  //   // hero->is_jumping = 1;
-  //   // hero->is_standing = 0;
-  //   hero->state = HERO_JUMP;
-  //   jump_speed_y = sqrt(speed_gravity * hero->jump_height);
-  //   hero->current_speed_gravity = 0;
-  // }
-  // //Если герой находится в состоянии прыжка
-  // // if (!hero->is_standing && hero->is_jumping) {
-  // if (hero->state == HERO_JUMP) {
-  //   // hero->state = HERO_JUMP;
-  //   hero->coordinates.y -= speed_dt(jump_speed_y);
-  //   jump_speed_y -= speed_dt(hero->current_speed_gravity);
-  // } else 
-  //   jump_speed_y = 0;
-  // //Если скорость прыжка стала нулевой и герой находится в состоянии прыжка
-  // // if (jump_speed_y <= 0 && hero->is_jumping) {
-  // if (jump_speed_y <= 0 && hero->state == HERO_JUMP) {
-  //   hero->state = HERO_FALL;
-  //   // hero->is_jumping = 0;
-  //   hero->current_speed_gravity = 0;
-  // }
-  // //Если герой находится в свободном падении
-  // // if (!hero->is_standing && !hero->is_jumping) {
-  // if (hero->state == HERO_FALL) {
-  //   // hero->state = HERO_FALL;
-  //   hero->coordinates.y += speed_dt(hero->current_speed_gravity);
-  // }
+  if (hero->state == HERO_FALL)
+    hero->coordinates.y += speed_dt(hero->current_speed_gravity);
 }
 
 void jump_hero() {
   static float jump_speed_y = 0;
-  if (keyboard[SDL_SCANCODE_SPACE] && (hero->state == HERO_IDLE ||
-      hero->state == HERO_WALK || hero->state == HERO_RUN) && 
-      (hero->state != HERO_JUMP && hero->state != HERO_FALL)) {
+  if (keyboard[SDL_SCANCODE_SPACE] && (hero->state == HERO_IDLE || hero->state == HERO_WALK || hero->state == HERO_RUN)) {
     hero->state = HERO_JUMP;
     jump_speed_y = sqrt(speed_gravity * hero->jump_height);
     hero->current_speed_gravity = 0;
@@ -157,15 +115,17 @@ void jump_hero() {
   if (hero->state == HERO_JUMP) {
     hero->coordinates.y -= speed_dt(jump_speed_y);
     jump_speed_y -= speed_dt(hero->current_speed_gravity);
-  }
+  } 
   if (jump_speed_y <= 0 && hero->state == HERO_JUMP) {
-    hero->state == HERO_FALL;
+    hero->state = HERO_FALL;
     hero->current_speed_gravity = 0;
   }
 }
 
 void move_hero() {
   if (hero->attack.type != ATTACK_HERO_NONE)
+    return;
+  if (hero->state == HERO_JUMP)
     return;
   if (keyboard[SDL_SCANCODE_A]) {
     hero->direction = DIRECTION_LEFT;
@@ -175,7 +135,7 @@ void move_hero() {
     hero->direction = DIRECTION_RIGHT;
     hero->state = HERO_WALK;
     hero->coordinates.x += speed_dt(hero->speed * current_coefficient_jerk_hero());
-  } else if (hero->state != HERO_JUMP) {
+  } else {
     hero->state = HERO_IDLE;
   }
   synchronize_hitbox_with_coordinates(&hero->hitbox, hero->coordinates);
@@ -220,13 +180,13 @@ Hero_state collision_with_blocks_hero() {
             hero->coordinates.x += speed_dt(hero->speed * current_coefficient_jerk_hero());
           } break;
           case COLLISION_UP: {
-            // hero->coordinates.y -= speed_dt(hero->current_speed_gravity);
             hero->current_speed_gravity = 0;
             is_collision_up = 1;
           } break;
           case COLLISION_DOWN: {
             hero->coordinates.y += speed_dt(sqrt(speed_gravity * hero->jump_height));
             state = HERO_FALL;
+            hero->state = HERO_FALL;
           } break;
         }
       }
@@ -249,7 +209,6 @@ Hero_state collision_platform_with_hero(struct Platform* platform) {
         hero->coordinates.x -= speed_dt(platform->speed);
       else
         hero->coordinates.x += speed_dt(platform->speed);
-      // hero->coordinates.y -= speed_dt(speed_gravity);
       is_collision_up = 1;
     } break;
     case COLLISION_LEFT: {
@@ -261,6 +220,7 @@ Hero_state collision_platform_with_hero(struct Platform* platform) {
     case COLLISION_DOWN: {
       hero->coordinates.y += speed_dt(sqrt(speed_gravity * hero->jump_height));
       state = HERO_FALL;
+      hero->state = HERO_FALL;
     } break;
     case COLLISION_RIGHT: {
       if (platform->direction == hero->direction)
@@ -401,8 +361,12 @@ void set_current_sprite_hero() {
   float width_difference = 0.f;
   if (time > current_texture->sprites[hero->current_number_sprite].rendering_time) {
     hero->current_number_sprite++; 
-    if (hero->current_number_sprite == current_texture->amount_sprite)
-      hero->current_number_sprite = 0;
+    if (hero->current_number_sprite == current_texture->amount_sprite) {
+      if (hero->current_texture->repeat_animation)
+        hero->current_number_sprite = 0;
+      else
+        hero->current_number_sprite--;
+    }
     hitbox_change_due_new_sprite_hero(hero->current_number_sprite, &height_difference, &width_difference);
     time = 0;
   }
