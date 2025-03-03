@@ -4,6 +4,7 @@
 #include "sdl.h"
 #include "global_var.h"
 #include "other_function.h"
+#include "application.h"
 #include <string.h>
 
 enum Background_type {
