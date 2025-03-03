@@ -9,18 +9,10 @@ void init_hero() {
     printf("Не удалось получить ресурсы для Hero *hero...\n");
     de_init_application(1);
   }
+  hero->state = HERO_IDLE;
   hero->coordinates = get_coordinates_for_new_game_hero();
-  init_texture(&hero->textures.idle, "../game_images/hero/skin_knight/idle/");
-  init_texture(&hero->textures.attack_1, "../game_images/hero/skin_knight/attack_1/");
-  init_texture(&hero->textures.attack_2, "../game_images/hero/skin_knight/attack_2/");
-  init_texture(&hero->textures.attack_3, "../game_images/hero/skin_knight/attack_3/");
-  init_texture(&hero->textures.run, "../game_images/hero/skin_knight/run/");
-  init_texture(&hero->textures.walk, "../game_images/hero/skin_knight/walk/");
-  init_texture(&hero->textures.fall, "../game_images/hero/skin_knight/fall/");
-  init_texture(&hero->textures.hurt, "../game_images/hero/skin_knight/hurt/");
-  init_texture(&hero->textures.jump, "../game_images/hero/skin_knight/jump/");
-  init_texture(&hero->textures.death, "../game_images/hero/skin_knight/death/");
-  set_current_texture_hero(&hero->textures.idle);
+  init_textures_hero();
+  set_current_texture_hero(hero->textures[hero->state]);
   hero->hitbox = {
     (int)hero->coordinates.x,
     (int)hero->coordinates.y,
@@ -35,20 +27,48 @@ void init_hero() {
   init_attack_type_info_hero();
   hero->attack.pure_damage = 5;
   hero->attack.cause_damage = 0;
-  hero->attack.type = ATTACK_HERO_NONE;
+  hero->attack.type = HERO_ATTACK_NONE;
   hero->attack.hitbox = { 0, 0, 0, 0 };
-  hero->state = HERO_IDLE;
+}
+
+void init_textures_hero() {
+  if (!(hero->textures = (Texture**)malloc(sizeof(Texture*) * HERO_AMOUNT_STATE))) {
+    printf("Не удалось получить ресурсы для Hero *hero...\n");
+    de_init_application(1);
+  }
+  malloc_texture(HERO_IDLE);
+  init_texture(hero->textures[HERO_IDLE], "../game_images/hero/skin_knight/idle/");
+  malloc_texture(HERO_WALK);
+  init_texture(hero->textures[HERO_WALK], "../game_images/hero/skin_knight/walk/");
+  malloc_texture(HERO_RUN);
+  init_texture(hero->textures[HERO_RUN], "../game_images/hero/skin_knight/run/");
+  malloc_texture(HERO_JUMP);
+  init_texture(hero->textures[HERO_JUMP], "../game_images/hero/skin_knight/jump/");
+  malloc_texture(HERO_FALL);
+  init_texture(hero->textures[HERO_FALL], "../game_images/hero/skin_knight/fall/");
+  malloc_texture(HERO_HURT);
+  init_texture(hero->textures[HERO_HURT], "../game_images/hero/skin_knight/hurt/");
+  malloc_texture(HERO_DEATH);
+  init_texture(hero->textures[HERO_DEATH], "../game_images/hero/skin_knight/death/");
+  malloc_texture(HERO_ATTACK, HERO_ATTACK_AMOUNT);
+  init_texture(&hero->textures[HERO_ATTACK][HERO_ATTACK_BASE_1], "../game_images/hero/skin_knight/attack_1/");
+  init_texture(&hero->textures[HERO_ATTACK][HERO_ATTACK_BASE_2], "../game_images/hero/skin_knight/attack_2/");
+  init_texture(&hero->textures[HERO_ATTACK][HERO_ATTACK_BASE_3], "../game_images/hero/skin_knight/attack_3/");
+}
+
+void malloc_texture(Hero_state state, int amount_textures) {
+  hero->textures[state] = (Texture*)malloc(sizeof(Texture) * amount_textures);
 }
 
 void init_attack_type_info_hero() {
-  attack_info_hero[ATTACK_HERO_BASE_1] = {
-    1.0f, 2, time_for_one_texture_iteration(&hero->textures.attack_1)
+  attack_info_hero[HERO_ATTACK_BASE_1] = {
+    1.0f, 2, time_for_one_texture_iteration(&hero->textures[HERO_ATTACK][HERO_ATTACK_BASE_1])
   };
-  attack_info_hero[ATTACK_HERO_BASE_2] = {
-    1.1f, 1, time_for_one_texture_iteration(&hero->textures.attack_2)
+  attack_info_hero[HERO_ATTACK_BASE_2] = {
+    1.1f, 1, time_for_one_texture_iteration(&hero->textures[HERO_ATTACK][HERO_ATTACK_BASE_2])
   };
-  attack_info_hero[ATTACK_HERO_BASE_3] = {
-    1.2f, 2, time_for_one_texture_iteration(&hero->textures.attack_3)
+  attack_info_hero[HERO_ATTACK_BASE_3] = {
+    1.2f, 2, time_for_one_texture_iteration(&hero->textures[HERO_ATTACK][HERO_ATTACK_BASE_3])
   };
 }
 
@@ -57,16 +77,18 @@ void load_hero(const char* load_file) {
 }
 
 void de_init_hero() {
-  de_init_texture(&hero->textures.idle);
-  de_init_texture(&hero->textures.attack_3);
-  de_init_texture(&hero->textures.attack_2);
-  de_init_texture(&hero->textures.attack_1);
-  de_init_texture(&hero->textures.run);
-  de_init_texture(&hero->textures.walk);
-  de_init_texture(&hero->textures.fall);
-  de_init_texture(&hero->textures.jump);
-  de_init_texture(&hero->textures.hurt);
-  de_init_texture(&hero->textures.death);
+  de_init_texture(hero->textures[HERO_IDLE]);
+  de_init_texture(hero->textures[HERO_WALK]);
+  de_init_texture(hero->textures[HERO_RUN]);
+  de_init_texture(hero->textures[HERO_FALL]);
+  de_init_texture(hero->textures[HERO_JUMP]);
+  de_init_texture(hero->textures[HERO_HURT]);
+  de_init_texture(hero->textures[HERO_DEATH]);
+  de_init_texture(&hero->textures[HERO_ATTACK][HERO_ATTACK_BASE_1]);
+  de_init_texture(&hero->textures[HERO_ATTACK][HERO_ATTACK_BASE_2]);
+  de_init_texture(&hero->textures[HERO_ATTACK][HERO_ATTACK_BASE_3]);
+  for (int i = 0; i < HERO_AMOUNT_STATE; ++i)
+    free(hero->textures[i]);
   free(hero);
 }
 
@@ -160,8 +182,7 @@ float current_coefficient_jerk_hero() {
   return 1;
 }
 
-void hitbox_change_due_new_sprite_hero(int number_sprite, float* height_difference, float* width_difference) {
-  hero->current_number_sprite = number_sprite;
+void hitbox_change_due_new_sprite_hero(float* height_difference, float* width_difference) {
   if (height_difference)
     *height_difference = hero->hitbox.h - hero->current_texture->sprites[hero->current_number_sprite].size.h;
   if (hero->direction == DIRECTION_LEFT && width_difference != NULL)
@@ -277,13 +298,13 @@ void attack_hero() {
     return;
   if (keyboard[SDL_SCANCODE_J]) {
     hero->state = HERO_ATTACK;
-    hero->attack.type = ATTACK_HERO_BASE_1;
+    hero->attack.type = HERO_ATTACK_BASE_1;
   } else if (keyboard[SDL_SCANCODE_K]) {
     hero->state = HERO_ATTACK;
-    hero->attack.type = ATTACK_HERO_BASE_2;
+    hero->attack.type = HERO_ATTACK_BASE_2;
   } else if (keyboard[SDL_SCANCODE_L]) {
     hero->state = HERO_ATTACK;
-    hero->attack.type = ATTACK_HERO_BASE_3;
+    hero->attack.type = HERO_ATTACK_BASE_3;
   }
 }
 
@@ -292,7 +313,7 @@ void attack_logic_hero() {
   time += dt;
   if (time >= attack_info_hero[hero->attack.type].total_impact_time) {
     hero->state = HERO_IDLE;
-    hero->attack.type = ATTACK_HERO_NONE;
+    hero->attack.type = HERO_ATTACK_NONE;
     time = 0;
     return;
   } else if (attack_info_hero[hero->attack.type].number_sprite_for_damage == hero->current_number_sprite) {
@@ -313,50 +334,10 @@ void determine_current_texture_hero() {
   static Hero_state prev_state = HERO_IDLE;
   if (prev_state == hero->state)
     return;
-  switch (hero->state) {
-    case HERO_IDLE: {
-      printf("hero_idle\n");
-      set_current_texture_hero(&hero->textures.idle);
-    } break;
-    case HERO_WALK: {
-      printf("hero_walk\n");
-      set_current_texture_hero(&hero->textures.walk);
-    } break;
-    case HERO_RUN: {
-      printf("hero_run\n");
-      set_current_texture_hero(&hero->textures.run);
-    } break;
-    case HERO_ATTACK: {
-      printf("hero_attack\n");
-      switch (hero->attack.type) {
-        case ATTACK_HERO_BASE_1: {
-          set_current_texture_hero(&hero->textures.attack_1);
-        } break;
-        case ATTACK_HERO_BASE_2: {
-          set_current_texture_hero(&hero->textures.attack_2);
-        } break;
-        case ATTACK_HERO_BASE_3: {
-          set_current_texture_hero(&hero->textures.attack_3);
-        } break;
-      }
-    } break;
-    case HERO_JUMP: {
-      printf("hero_jump\n");
-      set_current_texture_hero(&hero->textures.jump);
-    } break;
-    case HERO_DEATH: {
-      printf("hero_death\n");
-      set_current_texture_hero(&hero->textures.death);
-    } break;
-    case HERO_FALL: {
-      printf("hero_fall\n");
-      set_current_texture_hero(&hero->textures.fall);
-    } break;
-    case HERO_HURT: {
-      printf("hero_hurt\n");
-      set_current_texture_hero(&hero->textures.hurt);
-    } break;
-  }
+  if (hero->state != HERO_ATTACK)
+    set_current_texture_hero(hero->textures[hero->state]);
+  else
+    set_current_texture_hero(&hero->textures[hero->state][hero->attack.type]);
   prev_state = hero->state;
 }
 
@@ -374,7 +355,7 @@ void set_current_sprite_hero() {
   if (current_texture != hero->current_texture) {
     time = 0;
     current_texture = hero->current_texture;
-    hitbox_change_due_new_sprite_hero(hero->current_number_sprite, &height_difference, &width_difference);
+    hitbox_change_due_new_sprite_hero(&height_difference, &width_difference);
   }
   if (time > current_texture->sprites[hero->current_number_sprite].rendering_time) {
     hero->current_number_sprite++; 
@@ -384,7 +365,7 @@ void set_current_sprite_hero() {
       else
         hero->current_number_sprite--;
     }
-    hitbox_change_due_new_sprite_hero(hero->current_number_sprite, &height_difference, &width_difference);
+    hitbox_change_due_new_sprite_hero(&height_difference, &width_difference);
     time = 0;
   }
   hero->coordinates.y += height_difference;
