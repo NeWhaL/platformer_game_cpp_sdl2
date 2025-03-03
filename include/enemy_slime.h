@@ -3,8 +3,16 @@
 
 #include "enemy_base.h"
 
+enum Enemy_slime_state {
+  ENEMY_SLIME_WALK,
+  ENEMY_SLIME_ATTACK,
+  ENEMY_SLIME_DEATH,
+  ENEMY_SLIME_AMOUNT_STATE
+};
+
 struct Enemy_slime {
   Enemy_base base;
+  Enemy_slime_state state;
 };
 
 void move_enemy_slime(Enemy_slime* enemy);

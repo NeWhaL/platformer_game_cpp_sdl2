@@ -9,12 +9,9 @@
 #include "other_function.h"
 #include "hero.h"
 
-struct Enemy_textures {
-  Texture slime;
-};
-
 enum Enemy_type {
   ENEMY_SLIME,
+  ENEMY_AMOUNT
 };
 
 struct Enemy_base {
@@ -26,26 +23,30 @@ struct Enemy_base {
   Enemy_type type;
   SDL_FPoint coordinates;
   SDL_Rect hitbox;
-  int current_number_sprite;
-  double sprite_time_counter;
   float current_speed_gravity;
   int is_standing;
+  struct {
+    Texture* current;
+    int current_number_sprite;
+    double sprite_time_counter;
+  } texture;
 };
 
 extern struct Enemy_container {
   int amount_enemies;
   Enemy_base** enemies;
-  Enemy_textures textures;
+  Texture** textures;
 } *enemy_container;
 
 void malloc_enemy_container();
 // void init_enemies(Level_number number);
 void init_enemies();
+void init_textures_enemies();
+void malloc_texture_enemy(Enemy_type type, int amount_textures);
 void de_init_enemies();
 void updating_enemies();
 void gravity_enemy(Enemy_base* enemy);
 void collision_with_blocks_enemy(Enemy_base* enemy);
-// void collision_enemy_with_hero(Enemy_base* enemy);
 void draw_enemies();
 void set_current_sprite_enemy(Enemy_base* enemy);
 

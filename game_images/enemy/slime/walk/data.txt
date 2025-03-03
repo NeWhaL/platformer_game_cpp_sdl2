@@ -1,0 +1,10 @@
+1
+8
+150 slime_walk_0.png
+150 slime_walk_1.png
+150 slime_walk_2.png
+150 slime_walk_3.png
+150 slime_walk_4.png
+150 slime_walk_5.png
+150 slime_walk_6.png
+150 slime_walk_7.png

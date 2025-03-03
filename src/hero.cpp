@@ -311,6 +311,13 @@ void attack_logic_hero() {
   } else if (attack_info_hero[hero->attack.type].number_sprite_for_damage == hero->textures.current_number_sprite) {
     float damage = get_damage_hero(hero->attack.type);
     //Получить хитбокс удара и проверить коллиизию с противниками.
+    SDL_Rect attack_hitbox = hero->hitbox;
+    for (int i = 0; i < enemy_container->amount_enemies; ++i) {  
+      Enemy_base* enemy = enemy_container->enemies[i];
+      if (collision_of_two_objects(&attack_hitbox, &enemy->hitbox)) {
+        enemy->health -= damage;
+      }
+    }
   }
 }
 

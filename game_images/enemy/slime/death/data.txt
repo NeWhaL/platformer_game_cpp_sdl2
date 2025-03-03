@@ -1,0 +1,7 @@
+1
+5
+250 slime_death_0.png
+250 slime_death_1.png
+250 slime_death_2.png
+250 slime_death_3.png
+250 slime_death_4.png

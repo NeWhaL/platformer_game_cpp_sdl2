@@ -33,7 +33,8 @@ void init_enemies() {
   // }
 
   //здесь проинициализировать все текстуры противников
-  init_texture(&enemy_container->textures.slime, "../game_images/enemy/slime/");
+  init_textures_enemies();
+  // init_texture(&enemy_container->textures.slime, "../game_images/enemy/slime/");
 
   //Данные для каждого слайма
   Enemy_slime slime;
@@ -55,18 +56,20 @@ void init_enemies() {
           *new_slime = slime;
           new_slime->base.full_enemy = new_slime;
           new_slime->base.type = ENEMY_SLIME;
+          new_slime->state = ENEMY_SLIME_DEATH;
           new_slime->base.coordinates = { 
             float(level->real_size_edge_block * j),
             float(level->real_size_edge_block * i)
           };
-          new_slime->base.hitbox.w = enemy_container->textures.slime.sprites[0].size.w;
-          new_slime->base.hitbox.h = enemy_container->textures.slime.sprites[0].size.h;
+          new_slime->base.hitbox.w = enemy_container->textures[new_slime->base.type][new_slime->state].sprites[0].size.w;
+          new_slime->base.hitbox.h = enemy_container->textures[new_slime->base.type][new_slime->state].sprites[0].size.h;
           synchronize_hitbox_with_coordinates(&new_slime->base.hitbox, new_slime->base.coordinates);
           new_slime->base.direction = DIRECTION_LEFT;
-          new_slime->base.current_number_sprite = 0;
+          new_slime->base.texture.current_number_sprite = 0;
           new_slime->base.current_speed_gravity = 0;
           new_slime->base.is_standing = 0;
-          new_slime->base.sprite_time_counter = 0;
+          new_slime->base.texture.sprite_time_counter = 0;
+          new_slime->base.texture.current = &enemy_container->textures[new_slime->base.type][new_slime->state];
           enemy = &new_slime->base;
         } break;
       }
@@ -76,8 +79,26 @@ void init_enemies() {
   }
 }
 
+void malloc_texture_enemy(Enemy_type type, int amount_textures) {
+  enemy_container->textures[type] = (Texture*)malloc(sizeof(Texture) * amount_textures);
+}
+
+void init_textures_enemies() {
+  enemy_container->textures = (Texture**)malloc(sizeof(Texture*) * ENEMY_AMOUNT);
+  malloc_texture_enemy(ENEMY_SLIME, ENEMY_SLIME_AMOUNT_STATE); 
+  //также с остальными противниками
+  init_texture(&enemy_container->textures[ENEMY_SLIME][ENEMY_SLIME_ATTACK], "../game_images/enemy/slime/attack/");
+  init_texture(&enemy_container->textures[ENEMY_SLIME][ENEMY_SLIME_WALK], "../game_images/enemy/slime/walk/");
+  init_texture(&enemy_container->textures[ENEMY_SLIME][ENEMY_SLIME_DEATH], "../game_images/enemy/slime/death/");
+}
+
 void de_init_enemies() {
-  de_init_texture(&enemy_container->textures.slime);
+  de_init_texture(&enemy_container->textures[ENEMY_SLIME][ENEMY_SLIME_WALK]);
+  de_init_texture(&enemy_container->textures[ENEMY_SLIME][ENEMY_SLIME_ATTACK]);
+  de_init_texture(&enemy_container->textures[ENEMY_SLIME][ENEMY_SLIME_DEATH]);
+  for (int i = 0; i < ENEMY_AMOUNT; ++i)
+    free(enemy_container->textures[i]);
+  free(enemy_container->textures);
 
   for (int i = 0; i < enemy_container->amount_enemies; ++i) {
     Enemy_base* enemy = enemy_container->enemies[i];
@@ -165,14 +186,16 @@ void draw_enemies() {
         if (enemy->direction == DIRECTION_LEFT) {
           SDL_RenderCopy(
             renderer, 
-            enemy_container->textures.slime.sprites[enemy->current_number_sprite].sprite,
+            // enemy_container->textures.slime.sprites[enemy->current_number_sprite].sprite,
+            enemy->texture.current->sprites[enemy->texture.current_number_sprite].sprite,
             NULL,
             &enemy->hitbox
           );
         } else {
           SDL_RenderCopyEx(
             renderer,
-            enemy_container->textures.slime.sprites[enemy->current_number_sprite].sprite,
+            // enemy_container->textures.slime.sprites[enemy->current_number_sprite].sprite,
+            enemy->texture.current->sprites[enemy->texture.current_number_sprite].sprite,
             NULL,
             &enemy->hitbox,
             0, NULL, SDL_FLIP_HORIZONTAL
@@ -228,12 +251,12 @@ void set_current_sprite_enemy(Enemy_base* enemy) {
   switch (enemy->type) {
     case ENEMY_SLIME: {
       set_current_sprite(
-        &enemy_container->textures.slime,
-        &enemy->current_number_sprite,
+        enemy->texture.current,
+        &enemy->texture.current_number_sprite,
         &enemy->hitbox,
         &enemy->coordinates,
         enemy->direction,
-        &enemy->sprite_time_counter,
+        &enemy->texture.sprite_time_counter,
         0
       );
     } break;

@@ -1,0 +1,10 @@
+1
+8
+150 slime_attack_0.png
+150 slime_attack_1.png
+150 slime_attack_2.png
+150 slime_attack_3.png
+150 slime_attack_4.png
+150 slime_attack_5.png
+150 slime_attack_6.png
+150 slime_attack_7.png
