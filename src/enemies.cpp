@@ -66,6 +66,7 @@ void init_enemies() {
           new_slime->base.current_number_sprite = 0;
           new_slime->base.current_speed_gravity = 0;
           new_slime->base.is_standing = 0;
+          new_slime->base.sprite_time_counter = 0;
           enemy = &new_slime->base;
         } break;
       }
@@ -103,6 +104,7 @@ void updating_enemies() {
       } break;
     }
     collision_with_blocks_enemy(enemy);
+    set_current_sprite_enemy(enemy);
     synchronize_hitbox_with_coordinates(&enemy->hitbox, enemy->coordinates);
   }
 }
@@ -165,11 +167,11 @@ void draw_enemies() {
             renderer, 
             enemy_container->textures.slime.sprites[enemy->current_number_sprite].sprite,
             NULL,
-            &enemy->hitbox   
+            &enemy->hitbox
           );
         } else {
           SDL_RenderCopyEx(
-            renderer, 
+            renderer,
             enemy_container->textures.slime.sprites[enemy->current_number_sprite].sprite,
             NULL,
             &enemy->hitbox,
@@ -218,6 +220,22 @@ void collision_enemy_slime_with_hero(Enemy_slime* enemy) {
         else
           enemy->base.coordinates.x -= speed_dt(enemy->base.speed); 
       }
+    } break;
+  }
+}
+
+void set_current_sprite_enemy(Enemy_base* enemy) {
+  switch (enemy->type) {
+    case ENEMY_SLIME: {
+      set_current_sprite(
+        &enemy_container->textures.slime,
+        &enemy->current_number_sprite,
+        &enemy->hitbox,
+        &enemy->coordinates,
+        enemy->direction,
+        &enemy->sprite_time_counter,
+        0
+      );
     } break;
   }
 }

@@ -27,6 +27,7 @@ struct Enemy_base {
   SDL_FPoint coordinates;
   SDL_Rect hitbox;
   int current_number_sprite;
+  double sprite_time_counter;
   float current_speed_gravity;
   int is_standing;
 };
@@ -46,5 +47,6 @@ void gravity_enemy(Enemy_base* enemy);
 void collision_with_blocks_enemy(Enemy_base* enemy);
 // void collision_enemy_with_hero(Enemy_base* enemy);
 void draw_enemies();
+void set_current_sprite_enemy(Enemy_base* enemy);
 
 #endif
