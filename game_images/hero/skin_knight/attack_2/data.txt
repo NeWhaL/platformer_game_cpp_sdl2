@@ -1,7 +1,7 @@
 0
 6
 250 hero_knight_attack_2_0.png
-400 hero_knight_attack_2_1.png
+1000 hero_knight_attack_2_1.png
 200 hero_knight_attack_2_2.png
 200 hero_knight_attack_2_3.png
 150 hero_knight_attack_2_4.png

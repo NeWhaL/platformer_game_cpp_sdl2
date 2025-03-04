@@ -130,7 +130,7 @@ void gravity_hero() {
   if (hero->state == HERO_IDLE || hero->state == HERO_WALK || hero->state == HERO_RUN) {
     hero->current_speed_gravity = 0;
     return;
-  } else { 
+  } else {
     hero->current_speed_gravity += speed_dt(speed_gravity);
   }
   if (hero->state == HERO_FALL)
@@ -270,10 +270,12 @@ Hero_state collision_platforms_with_hero() {
       case PLATFORM_DISAPPEARING: {
         if (platform->special.disappearing.is_active)
           state = collision_platform_with_hero(platform);
+        else
+          state = HERO_FALL;
       } break;
       case PLATFORM_BREAKING: {
         state = collision_platform_with_hero(platform);
-        if (hero->state == HERO_IDLE && hero->state == HERO_WALK && hero->state == HERO_RUN)
+        if (hero->state == HERO_IDLE || hero->state == HERO_WALK || hero->state == HERO_RUN)
           platform->special.breaking.was_the_hero_standing_on_the_platform = 1;
       } break;
     }
@@ -316,6 +318,14 @@ void attack_logic_hero() {
       Enemy_base* enemy = enemy_container->enemies[i];
       if (collision_of_two_objects(&attack_hitbox, &enemy->hitbox)) {
         enemy->health -= damage;
+        if (enemy->health <= 0) {
+          switch (enemy->type) {
+            case ENEMY_SLIME: {
+              Enemy_slime* slime = (Enemy_slime*)enemy->full_enemy; 
+              slime->current_state = ENEMY_SLIME_DEATH;
+            } break;
+          } 
+        }
       }
     }
   }

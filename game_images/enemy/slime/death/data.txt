@@ -1,4 +1,4 @@
-1
+0
 5
 250 slime_death_0.png
 250 slime_death_1.png

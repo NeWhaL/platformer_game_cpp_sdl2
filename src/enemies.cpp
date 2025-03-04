@@ -56,20 +56,21 @@ void init_enemies() {
           *new_slime = slime;
           new_slime->base.full_enemy = new_slime;
           new_slime->base.type = ENEMY_SLIME;
-          new_slime->state = ENEMY_SLIME_DEATH;
+          new_slime->current_state = ENEMY_SLIME_WALK;
+          new_slime->prev_state = new_slime->current_state;
           new_slime->base.coordinates = { 
             float(level->real_size_edge_block * j),
             float(level->real_size_edge_block * i)
           };
-          new_slime->base.hitbox.w = enemy_container->textures[new_slime->base.type][new_slime->state].sprites[0].size.w;
-          new_slime->base.hitbox.h = enemy_container->textures[new_slime->base.type][new_slime->state].sprites[0].size.h;
+          new_slime->base.hitbox.w = enemy_container->textures[new_slime->base.type][new_slime->current_state].sprites[0].size.w;
+          new_slime->base.hitbox.h = enemy_container->textures[new_slime->base.type][new_slime->current_state].sprites[0].size.h;
           synchronize_hitbox_with_coordinates(&new_slime->base.hitbox, new_slime->base.coordinates);
           new_slime->base.direction = DIRECTION_LEFT;
           new_slime->base.texture.current_number_sprite = 0;
           new_slime->base.current_speed_gravity = 0;
           new_slime->base.is_standing = 0;
           new_slime->base.texture.sprite_time_counter = 0;
-          new_slime->base.texture.current = &enemy_container->textures[new_slime->base.type][new_slime->state];
+          new_slime->base.texture.current = &enemy_container->textures[new_slime->base.type][new_slime->current_state];
           enemy = &new_slime->base;
         } break;
       }
@@ -120,8 +121,16 @@ void updating_enemies() {
     switch (enemy->type) {
       case ENEMY_SLIME: {
         Enemy_slime* slime = (Enemy_slime*)enemy->full_enemy;
+        if (slime->current_state == ENEMY_SLIME_DEATH) {
+          collision_with_blocks_enemy(enemy);
+          determine_current_texture_enemy_slime(slime);
+          set_current_sprite_enemy(enemy);
+          synchronize_hitbox_with_coordinates(&enemy->hitbox, enemy->coordinates);
+          continue;
+        }
         move_enemy_slime(slime);
         collision_enemy_slime_with_hero(slime);
+        determine_current_texture_enemy_slime(slime);
       } break;
     }
     collision_with_blocks_enemy(enemy);
@@ -186,7 +195,6 @@ void draw_enemies() {
         if (enemy->direction == DIRECTION_LEFT) {
           SDL_RenderCopy(
             renderer, 
-            // enemy_container->textures.slime.sprites[enemy->current_number_sprite].sprite,
             enemy->texture.current->sprites[enemy->texture.current_number_sprite].sprite,
             NULL,
             &enemy->hitbox
@@ -194,21 +202,18 @@ void draw_enemies() {
         } else {
           SDL_RenderCopyEx(
             renderer,
-            // enemy_container->textures.slime.sprites[enemy->current_number_sprite].sprite,
             enemy->texture.current->sprites[enemy->texture.current_number_sprite].sprite,
             NULL,
             &enemy->hitbox,
             0, NULL, SDL_FLIP_HORIZONTAL
           );
         }
-        
       } break;
     }
   }
 }
 
 void collision_enemy_slime_with_hero(Enemy_slime* enemy) {
-
   switch (collision_of_two_objects(&hero->hitbox, &enemy->base.hitbox)) {
     case COLLISION_UP: {
       hero->coordinates.y -= speed_dt(hero->current_speed_gravity);
@@ -250,15 +255,31 @@ void collision_enemy_slime_with_hero(Enemy_slime* enemy) {
 void set_current_sprite_enemy(Enemy_base* enemy) {
   switch (enemy->type) {
     case ENEMY_SLIME: {
-      set_current_sprite(
-        enemy->texture.current,
-        &enemy->texture.current_number_sprite,
-        &enemy->hitbox,
-        &enemy->coordinates,
-        enemy->direction,
-        &enemy->texture.sprite_time_counter,
-        0
-      );
+      Enemy_slime* slime = (Enemy_slime*)enemy->full_enemy;
+      set_current_sprite_enemy_slime(slime);
     } break;
+  }
+}
+
+void set_current_sprite_enemy_slime(Enemy_slime* enemy) {
+  set_current_sprite(
+    enemy->base.texture.current,
+    &enemy->base.texture.current_number_sprite,
+    &enemy->base.hitbox,
+    &enemy->base.coordinates,
+    enemy->base.direction,
+    &enemy->base.texture.sprite_time_counter,
+    enemy->current_state != enemy->prev_state
+  );
+  if (enemy->current_state != enemy->prev_state)
+    enemy->prev_state = enemy->current_state;
+}
+
+void determine_current_texture_enemy_slime(Enemy_slime* enemy) {
+  if (enemy->prev_state == enemy->current_state) {
+    return;
+  } else {
+    enemy->base.texture.current = &enemy_container->textures[enemy->base.type][enemy->current_state]; 
+    enemy->base.texture.current_number_sprite = 0;
   }
 }

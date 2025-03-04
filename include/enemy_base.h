@@ -49,5 +49,6 @@ void gravity_enemy(Enemy_base* enemy);
 void collision_with_blocks_enemy(Enemy_base* enemy);
 void draw_enemies();
 void set_current_sprite_enemy(Enemy_base* enemy);
+void enemy_death(Enemy_base* enemy);
 
 #endif
