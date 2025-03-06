@@ -24,11 +24,11 @@ l                                                          r
 l                                                          r
 l                                                          r
 l                                                          r
+l      @                                                   r
 l                                                          r
-l                                                          r
-l     @r                                                   r
+l      r          p          g                             r
 l      r                                                   r
-gdddddds      ppp   g                                      r
+gdddddds      bbb   g  pp    g                             r
 l                                                          r
 l                    S                                     r
 adddddddddddddddddddddddddddddddddddddddddddddddddddddddddds

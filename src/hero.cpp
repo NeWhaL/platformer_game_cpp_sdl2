@@ -193,7 +193,7 @@ Hero_state collision_with_blocks_hero() {
     for (int j = 0; j < level->amount_blocks.x; ++j) {
       Blocks b_type = Blocks(level->map[i][j]);
       if (b_type != BLOCK_SPACE && b_type != BLOCK_PLATFORM_BASE && b_type != BLOCK_SPAWN_HERO &&
-          b_type != BLOCK_SPAWN_SLIME) {
+          b_type != BLOCK_SPAWN_SLIME && b_type != BLOCK_PLATFORM_BREAKING && b_type != BLOCK_PLATFORM_DISAPPEARING) {
         position_block.x = j * level->real_size_edge_block;
         position_block.y = i * level->real_size_edge_block;
         switch (collision_of_two_objects(&hero->hitbox, &position_block)) {
@@ -234,6 +234,8 @@ Hero_state collision_platform_with_hero(struct Platform* platform) {
       else
         hero->coordinates.x += speed_dt(platform->speed);
       is_collision_up = 1;
+      if (platform->type == PLATFORM_BREAKING)
+        platform->special.breaking.was_the_hero_standing_on_the_platform = 1;
     } break;
     case COLLISION_LEFT: {
       if (platform->direction == hero->direction)
@@ -260,26 +262,42 @@ Hero_state collision_platform_with_hero(struct Platform* platform) {
 
 Hero_state collision_platforms_with_hero() {
   Hero_state state = hero->state;
+  int leave_the_previous_state_of_the_hero = 0;
+  int are_all_platforms_inactive = 1;
   for (int i = 0; i < amount_platforms; ++i) {
     Platform* platform = &platforms[i];
     collision_direction current_collision = COLLISION_NONE;
     switch (platform->type) {
       case PLATFORM_BASE: {
         state = collision_platform_with_hero(platform);
+        if (state != HERO_FALL)
+          leave_the_previous_state_of_the_hero = 1;
+        are_all_platforms_inactive = 0;
       } break;
       case PLATFORM_DISAPPEARING: {
         if (platform->special.disappearing.is_active)
           state = collision_platform_with_hero(platform);
         else
           state = HERO_FALL;
+        if (state != HERO_FALL)
+          leave_the_previous_state_of_the_hero = 1;
+        are_all_platforms_inactive = 0;
       } break;
       case PLATFORM_BREAKING: {
         state = collision_platform_with_hero(platform);
-        if (hero->state == HERO_IDLE || hero->state == HERO_WALK || hero->state == HERO_RUN)
-          platform->special.breaking.was_the_hero_standing_on_the_platform = 1;
+        if (state != HERO_FALL)
+          leave_the_previous_state_of_the_hero = 1;
+        are_all_platforms_inactive = 0;
+      } break;
+      case PLATFORM_INACTIVE: {
+
       } break;
     }
   }
+  if (leave_the_previous_state_of_the_hero)
+    state = hero->state;
+  if (are_all_platforms_inactive)
+    state = HERO_FALL;
   synchronize_hitbox_with_coordinates(&hero->hitbox, hero->coordinates);
   return state;
 }

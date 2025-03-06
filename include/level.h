@@ -29,6 +29,8 @@ enum Blocks {
   BLOCK_GROUND_DOWN_RIGHT = 's',
   BLOCK_GROUND_DOWN_LEFT = 'a',
   BLOCK_PLATFORM_BASE = 'p',
+  BLOCK_PLATFORM_BREAKING = 'b',
+  BLOCK_PLATFORM_DISAPPEARING = 'i',
 };
 
 enum Platrorm_type {
