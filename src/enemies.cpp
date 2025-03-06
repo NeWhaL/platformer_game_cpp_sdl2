@@ -71,6 +71,7 @@ void init_enemies() {
           new_slime->base.is_standing = 0;
           new_slime->base.texture.sprite_time_counter = 0;
           new_slime->base.texture.current = &enemy_container->textures[new_slime->base.type][new_slime->current_state];
+          new_slime->base.damage = 1;
           enemy = &new_slime->base;
         } break;
       }
@@ -117,25 +118,11 @@ void de_init_enemies() {
 void updating_enemies() {
   for (int i = 0; i < enemy_container->amount_enemies; ++i) {
     Enemy_base* enemy = enemy_container->enemies[i];
-    gravity_enemy(enemy);
     switch (enemy->type) {
       case ENEMY_SLIME: {
-        Enemy_slime* slime = (Enemy_slime*)enemy->full_enemy;
-        if (slime->current_state == ENEMY_SLIME_DEATH) {
-          collision_with_blocks_enemy(enemy);
-          determine_current_texture_enemy_slime(slime);
-          set_current_sprite_enemy(enemy);
-          synchronize_hitbox_with_coordinates(&enemy->hitbox, enemy->coordinates);
-          continue;
-        }
-        move_enemy_slime(slime);
-        collision_enemy_slime_with_hero(slime);
-        determine_current_texture_enemy_slime(slime);
+        update_enemy_slime((Enemy_slime*)enemy->full_enemy);
       } break;
     }
-    collision_with_blocks_enemy(enemy);
-    set_current_sprite_enemy(enemy);
-    synchronize_hitbox_with_coordinates(&enemy->hitbox, enemy->coordinates);
   }
 }
 
@@ -180,13 +167,6 @@ void collision_with_blocks_enemy(Enemy_base* enemy) {
   synchronize_hitbox_with_coordinates(&enemy->hitbox, enemy->coordinates);
 }
 
-void move_enemy_slime(Enemy_slime* enemy) {
-  if (enemy->base.direction == DIRECTION_LEFT)
-    enemy->base.coordinates.x -= speed_dt(enemy->base.speed);
-  else
-    enemy->base.coordinates.x += speed_dt(enemy->base.speed);
-}
-
 void draw_enemies() {
   for (int i = 0; i < enemy_container->amount_enemies; ++i) {
     Enemy_base* enemy = enemy_container->enemies[i];
@@ -213,73 +193,11 @@ void draw_enemies() {
   }
 }
 
-void collision_enemy_slime_with_hero(Enemy_slime* enemy) {
-  switch (collision_of_two_objects(&hero->hitbox, &enemy->base.hitbox)) {
-    case COLLISION_UP: {
-      hero->coordinates.y -= speed_dt(hero->current_speed_gravity);
-    } break;
-    case COLLISION_DOWN: {
-      hero->coordinates.y += speed_dt(hero->current_speed_gravity);
-    } break;
-    case COLLISION_RIGHT: {
-      if (enemy->base.direction == DIRECTION_LEFT) {
-        if (hero->speed * current_coefficient_jerk_hero() > enemy->base.speed)
-          enemy->base.coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero() + enemy->base.speed); 
-        else
-          enemy->base.coordinates.x -= speed_dt(enemy->base.speed); 
-      }
-      else {
-        if (hero->speed * current_coefficient_jerk_hero() > enemy->base.speed)
-          enemy->base.coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero() + enemy->base.speed); 
-        else
-          enemy->base.coordinates.x -= speed_dt(enemy->base.speed); 
-      }
-    } break;
-    case COLLISION_LEFT: {
-      if (enemy->base.direction == DIRECTION_LEFT) {
-        if (hero->speed * current_coefficient_jerk_hero() > enemy->base.speed)
-          enemy->base.coordinates.x += speed_dt(hero->speed * current_coefficient_jerk_hero() + enemy->base.speed); 
-        else
-          enemy->base.coordinates.x += speed_dt(enemy->base.speed); 
-      }
-      else {
-        if (hero->speed * current_coefficient_jerk_hero() > enemy->base.speed)
-          enemy->base.coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero() + enemy->base.speed); 
-        else
-          enemy->base.coordinates.x -= speed_dt(enemy->base.speed); 
-      }
-    } break;
-  }
-}
-
 void set_current_sprite_enemy(Enemy_base* enemy) {
   switch (enemy->type) {
     case ENEMY_SLIME: {
       Enemy_slime* slime = (Enemy_slime*)enemy->full_enemy;
       set_current_sprite_enemy_slime(slime);
     } break;
-  }
-}
-
-void set_current_sprite_enemy_slime(Enemy_slime* enemy) {
-  set_current_sprite(
-    enemy->base.texture.current,
-    &enemy->base.texture.current_number_sprite,
-    &enemy->base.hitbox,
-    &enemy->base.coordinates,
-    enemy->base.direction,
-    &enemy->base.texture.sprite_time_counter,
-    enemy->current_state != enemy->prev_state
-  );
-  if (enemy->current_state != enemy->prev_state)
-    enemy->prev_state = enemy->current_state;
-}
-
-void determine_current_texture_enemy_slime(Enemy_slime* enemy) {
-  if (enemy->prev_state == enemy->current_state) {
-    return;
-  } else {
-    enemy->base.texture.current = &enemy_container->textures[enemy->base.type][enemy->current_state]; 
-    enemy->base.texture.current_number_sprite = 0;
   }
 }

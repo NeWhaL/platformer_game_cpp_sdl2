@@ -50,6 +50,8 @@ extern struct Hero {
   float health;
   float current_speed_gravity;
   float jump_height;
+  double max_damage_timer;
+  double damage_timer;
   struct { //Всё, что относиться к текстурам героя
     Texture** all;
     Texture* current;
@@ -73,6 +75,7 @@ void load_hero(const char* load_file);
 void de_init_hero();
 void draw_hero();
 void update_hero();
+void check_death_hero();
 void move_hero();
 void gravity_hero();
 void jump_hero();
@@ -83,10 +86,11 @@ Hero_state collision_platform_with_hero(struct Platform* platform);
 float current_coefficient_jerk_hero();
 SDL_FPoint get_coordinates_for_new_game_hero();
 void attack_hero();
+int is_the_dealing_damage_now_hero();
 float get_damage_hero(Attack_type type);
 void attack_logic_hero();
-void collision_attack_hero_with_enemy();
 void set_current_texture_hero(Texture* texture);
 void determine_current_texture_hero();
+void reaction_hero_to_hurt();
 
 #endif

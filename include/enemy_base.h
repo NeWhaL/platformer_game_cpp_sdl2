@@ -10,6 +10,7 @@
 #include "hero.h"
 
 enum Enemy_type {
+  ENEMY_INACTIVE = -1,
   ENEMY_SLIME,
   ENEMY_AMOUNT
 };

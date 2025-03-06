@@ -29,6 +29,9 @@ void init_hero() {
   hero->attack.cause_damage = 0;
   hero->attack.type = HERO_ATTACK_NONE;
   hero->attack.hitbox = { 0, 0, 0, 0 };
+  hero->damage_timer = 1000;
+  hero->max_damage_timer = hero->damage_timer;
+  hero->health = 10;
 }
 
 void init_textures_hero() {
@@ -113,6 +116,8 @@ void draw_hero() {
 }
 
 void update_hero() {
+  check_death_hero();
+  reaction_hero_to_hurt();
   gravity_hero();
   move_hero();
   if (collision_with_blocks_hero() == HERO_FALL &&
@@ -124,6 +129,16 @@ void update_hero() {
   attack_hero();
   determine_current_texture_hero();
   set_current_sprite_hero();
+}
+
+void check_death_hero() {
+  static double time = 0;
+  if (hero->state == HERO_DEATH) {
+    time += dt;
+    if (time >= time_for_one_texture_iteration(hero->textures.current)) {
+      is_running = MAIN_MENU;
+    }
+  }
 }
 
 void gravity_hero() {
@@ -138,6 +153,8 @@ void gravity_hero() {
 }
 
 void jump_hero() {
+  if (hero->state == HERO_DEATH)
+    return;
   static float jump_speed_y = 0;
   if (keyboard[SDL_SCANCODE_SPACE] && (hero->state == HERO_IDLE || hero->state == HERO_WALK || hero->state == HERO_RUN)) {
     hero->state = HERO_JUMP;
@@ -155,7 +172,7 @@ void jump_hero() {
 }
 
 void move_hero() {
-  if (hero->state == HERO_ATTACK)
+  if (hero->state == HERO_ATTACK || hero->state == HERO_DEATH || hero->state == HERO_HURT)
     return; 
   if (keyboard[SDL_SCANCODE_A]) {
     hero->direction = DIRECTION_LEFT;
@@ -303,6 +320,8 @@ Hero_state collision_platforms_with_hero() {
 }
 
 void attack_hero() {
+  if (hero->state == HERO_DEATH || hero->state == HERO_HURT)
+    return;
   if (hero->state == HERO_ATTACK) {
     attack_logic_hero();
     return;
@@ -328,33 +347,49 @@ void attack_logic_hero() {
     hero->attack.type = HERO_ATTACK_NONE;
     time = 0;
     return;
-  } else if (attack_info_hero[hero->attack.type].number_sprite_for_damage == hero->textures.current_number_sprite) {
+  } else if (is_the_dealing_damage_now_hero()) {
     float damage = get_damage_hero(hero->attack.type);
     //Получить хитбокс удара и проверить коллиизию с противниками.
     SDL_Rect attack_hitbox = hero->hitbox;
     for (int i = 0; i < enemy_container->amount_enemies; ++i) {  
       Enemy_base* enemy = enemy_container->enemies[i];
-      if (collision_of_two_objects(&attack_hitbox, &enemy->hitbox)) {
-        enemy->health -= damage;
-        if (enemy->health <= 0) {
-          switch (enemy->type) {
-            case ENEMY_SLIME: {
-              Enemy_slime* slime = (Enemy_slime*)enemy->full_enemy; 
-              slime->current_state = ENEMY_SLIME_DEATH;
-            } break;
-          } 
-        }
+      if (enemy->type == ENEMY_INACTIVE ||
+          collision_of_two_objects(&attack_hitbox, &enemy->hitbox) == COLLISION_NONE)
+        continue;
+      enemy->health -= damage;
+      if (enemy->health > 0) 
+        continue;
+      switch (enemy->type) {
+        case ENEMY_SLIME: {
+          ((Enemy_slime*)enemy->full_enemy)->current_state = ENEMY_SLIME_DEATH;
+        } break;
       }
     }
   }
+}
+
+int is_the_dealing_damage_now_hero() {
+  return attack_info_hero[hero->attack.type].number_sprite_for_damage == hero->textures.current_number_sprite;
 }
 
 float get_damage_hero(Attack_type type) {
   return hero->attack.pure_damage * attack_info_hero[hero->attack.type].damage_multiplier;
 }
 
-void collision_attack_hero_with_enemy() {
-
+void reaction_hero_to_hurt() {
+  static double time = 0;
+  if (hero->state == HERO_HURT) {
+    time += dt;
+    if (hero->damage_timer >= hero->max_damage_timer) {
+      hero->damage_timer = 0;
+    }
+  }
+  if (time >= time_for_one_texture_iteration(hero->textures.current)) {
+    time = 0;
+    hero->state = HERO_IDLE;
+  }
+  if (hero->damage_timer < hero->max_damage_timer)
+    hero->damage_timer += dt;
 }
 
 void determine_current_texture_hero() {
