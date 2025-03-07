@@ -6,6 +6,7 @@ void update_enemy_slime(Enemy_slime* enemy) {
   move_enemy_slime(enemy);
   collision_with_blocks_enemy(&enemy->base);
   slime_attack_on_the_hero(enemy);
+  determine_current_state_enemy_slime(enemy);
   determine_current_texture_enemy_slime(enemy);
   set_current_sprite_enemy(&enemy->base);
   synchronize_hitbox_with_coordinates(&enemy->base.hitbox, enemy->base.coordinates);
@@ -31,6 +32,22 @@ void slime_attack_on_the_hero(Enemy_slime* enemy) {
       hero->state = HERO_HURT;
     else
       hero->state = HERO_DEATH;
+  }
+}
+
+void determine_current_state_enemy_slime(Enemy_slime* enemy) {
+  if (enemy->current_state == ENEMY_SLIME_DEATH)
+    return;
+  if (hero->coordinates.y + hero->hitbox.h >= enemy->base.coordinates.y &&
+      hero->coordinates.y <= enemy->base.coordinates.y + enemy->base.hitbox.h) {
+    enemy->current_state = ENEMY_SLIME_ATTACK;
+    if (enemy->base.coordinates.x > hero->coordinates.x + hero->hitbox.w) {
+      enemy->base.direction = DIRECTION_LEFT;
+    } else if (enemy->base.coordinates.x + enemy->base.hitbox.w < hero->coordinates.x) {
+      enemy->base.direction = DIRECTION_RIGHT;
+    }
+  } else {
+    enemy->current_state = ENEMY_SLIME_WALK;
   }
 }
 

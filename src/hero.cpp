@@ -121,7 +121,7 @@ void update_hero() {
   move_hero();
   if (collision_with_blocks_hero() == HERO_FALL &&
       collision_platforms_with_hero() == HERO_FALL &&
-      hero->state != HERO_JUMP) {
+      hero->state != HERO_JUMP && hero->state != HERO_HURT) {
     hero->state = HERO_FALL;
   }
   jump_hero();
