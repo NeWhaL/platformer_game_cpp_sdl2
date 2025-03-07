@@ -116,7 +116,6 @@ void draw_hero() {
 }
 
 void update_hero() {
-  check_death_hero();
   reaction_hero_to_hurt();
   gravity_hero();
   move_hero();
@@ -129,15 +128,15 @@ void update_hero() {
   attack_hero();
   determine_current_texture_hero();
   set_current_sprite_hero();
+  check_death_hero();
 }
 
 void check_death_hero() {
   static double time = 0;
   if (hero->state == HERO_DEATH) {
     time += dt;
-    if (time >= time_for_one_texture_iteration(hero->textures.current)) {
+    if (time >= time_for_one_texture_iteration(hero->textures.current))
       is_running = MAIN_MENU;
-    }
   }
 }
 
@@ -173,7 +172,7 @@ void jump_hero() {
 
 void move_hero() {
   if (hero->state == HERO_ATTACK || hero->state == HERO_DEATH || hero->state == HERO_HURT)
-    return; 
+    return;
   if (keyboard[SDL_SCANCODE_A]) {
     hero->direction = DIRECTION_LEFT;
     if (hero->state != HERO_JUMP)
@@ -193,7 +192,7 @@ void move_hero() {
 
 float current_coefficient_jerk_hero() {
   if (keyboard[SDL_SCANCODE_LSHIFT]) {
-    if (hero->state != HERO_JUMP)
+    if (hero->state != HERO_JUMP && hero->state != HERO_HURT)
       hero->state = HERO_RUN;
     return hero->coefficient_jerk;
   }
@@ -227,7 +226,8 @@ Hero_state collision_with_blocks_hero() {
           case COLLISION_DOWN: {
             hero->coordinates.y += speed_dt(sqrt(speed_gravity * hero->jump_height));
             state = HERO_FALL;
-            hero->state = HERO_FALL;
+            if (hero->state != HERO_HURT)
+              hero->state = HERO_FALL;
           } break;
         }
       }
@@ -263,7 +263,8 @@ Hero_state collision_platform_with_hero(struct Platform* platform) {
     case COLLISION_DOWN: {
       hero->coordinates.y += speed_dt(sqrt(speed_gravity * hero->jump_height));
       state = HERO_FALL;
-      hero->state = HERO_FALL;
+      if (hero->state != HERO_HURT)
+        hero->state = HERO_FALL;
     } break;
     case COLLISION_RIGHT: {
       if (platform->direction == hero->direction)
@@ -305,9 +306,6 @@ Hero_state collision_platforms_with_hero() {
         if (state != HERO_FALL)
           leave_the_previous_state_of_the_hero = 1;
         are_all_platforms_inactive = 0;
-      } break;
-      case PLATFORM_INACTIVE: {
-
       } break;
     }
   }

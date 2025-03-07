@@ -21,9 +21,9 @@ void move_enemy_slime(Enemy_slime* enemy) {
 }
 
 void slime_attack_on_the_hero(Enemy_slime* enemy) {
-  if (!collision_enemy_slime_with_hero(enemy))
+  if (hero->state == HERO_DEATH || !collision_enemy_slime_with_hero(enemy))
     return;
-  if (is_the_dealing_damage_now_hero())
+  if (hero->state == HERO_ATTACK && is_the_dealing_damage_now_hero())
     return;
   if (hero->damage_timer >= hero->max_damage_timer) {
     hero->health -= enemy->base.damage;
