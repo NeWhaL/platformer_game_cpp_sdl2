@@ -59,65 +59,8 @@ double read_from_file_double(FILE* file) {
 	return data;
 }
 
-// void init_texture(Texture* some_texture, const char* path_to_the_sprite_directory) {
-//   const int buffer_size = 512;
-//   char data[buffer_size];
-//   snprintf(data, sizeof(data), "%s%s", path_to_the_sprite_directory, "data.txt");
-//   FILE* f = fopen(data, "r");
-//   if (!f) {
-//     printf("Не удалось загрузить спрайты из %s...\n", path_to_the_sprite_directory);
-//     de_init_application(1);
-//   }
-// 	//переменная, отвечающая за цикличность анимации.
-// 	fscanf(f, "%d", &some_texture->repeat_animation);
-// 	fgetc(f);
-// 	//переменная, отвечающая за количество спрайтов в текстуре.
-//   fscanf(f, "%d", &some_texture->amount_sprite);
-// 	fgetc(f);
-//   some_texture->sprites = (Sprite*)malloc(sizeof(Sprite) * some_texture->amount_sprite);
-//   for (int i = 0; i < some_texture->amount_sprite; ++i) {
-// 		Sprite* current_sprite = &some_texture->sprites[i];
-// 		fscanf(f, "%lf", &current_sprite->rendering_time);
-// 		fgetc(f);
-//     char sprite_name[buffer_size / 2];
-//     if (fgets(sprite_name, sizeof(sprite_name), f) == NULL) {
-//       printf("Ошибка: фактическое число спрайтов оказалось меньше, чем указано в файле %s в первой строке...", data);
-//       fclose(f);
-//       de_init_application(1);
-//     }
-// 		int size_sprite_name = strlen(sprite_name);
-// 		if (size_sprite_name > 0 && sprite_name[size_sprite_name - 1] == '\n') {
-// 			sprite_name[size_sprite_name - 1] = '\0';
-// 		}
-// 		char sprite_path[buffer_size];
-// 		snprintf(sprite_path, buffer_size, "%s%s", path_to_the_sprite_directory, sprite_name);
-//     current_sprite->sprite = load_texture_from_file(sprite_path, &current_sprite->size);
-//   }
-//   fclose(f);
-// }
-
-// void de_init_texture(Texture* texture) {
-//   for (int i = 0; i < texture->amount_sprite; ++i)
-//     SDL_DestroyTexture(texture->sprites[i].sprite);
-//   free(texture->sprites);
-// }
-
-// SDL_Texture* load_texture_from_file(const char* filename, SDL_Rect* size) {
-// 	SDL_Surface* surface = IMG_Load(filename);
-// 	if (!surface) {
-// 		printf("Не удалось загрузить изображение с именем %s!\nОшибка: %s", filename, SDL_GetError());
-// 		de_init_application(1);
-// 	}
-// 	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-// 	if (size)
-// 		*size = { 0, 0, surface->w, surface->h };
-// 	SDL_FreeSurface(surface);
-// 	return texture;
-// }
-
-// double time_for_one_texture_iteration(Texture* texture) {
-// 	double total_time = 0;
-// 	for (int i = 0; i < texture->amount_sprite; ++i)
-// 		total_time += texture->sprites[i].rendering_time;
-// 	return total_time;
-// }
+float the_distance_between_the_centers_of_two_rect(SDL_Rect* rect_1, SDL_Rect* rect_2) {
+  float distance_x = (rect_1->x + rect_1->w / 2.0) - (rect_2->x + rect_2->w / 2.0);
+  float distance_y = (rect_1->y + rect_1->h / 2.0) - (rect_2->y + rect_2->h / 2.0);
+  return sqrt(distance_x * distance_x + distance_y * distance_y);
+}

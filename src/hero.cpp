@@ -209,7 +209,8 @@ Hero_state collision_with_blocks_hero() {
     for (int j = 0; j < level->amount_blocks.x; ++j) {
       Blocks b_type = Blocks(level->map[i][j]);
       if (b_type != BLOCK_SPACE && b_type != BLOCK_PLATFORM_BASE && b_type != BLOCK_SPAWN_HERO &&
-          b_type != BLOCK_SPAWN_SLIME && b_type != BLOCK_PLATFORM_BREAKING && b_type != BLOCK_PLATFORM_DISAPPEARING) {
+          b_type != BLOCK_SPAWN_SLIME && b_type != BLOCK_SPAWN_SKELETON &&
+          b_type != BLOCK_PLATFORM_BREAKING && b_type != BLOCK_PLATFORM_DISAPPEARING) {
         position_block.x = j * level->real_size_edge_block;
         position_block.y = i * level->real_size_edge_block;
         switch (collision_of_two_objects(&hero->hitbox, &position_block)) {
@@ -355,13 +356,6 @@ void attack_logic_hero() {
           collision_of_two_objects(&attack_hitbox, &enemy->hitbox) == COLLISION_NONE)
         continue;
       enemy->health -= damage;
-      if (enemy->health > 0) 
-        continue;
-      switch (enemy->type) {
-        case ENEMY_SLIME: {
-          ((Enemy_slime*)enemy->full_enemy)->current_state = ENEMY_SLIME_DEATH;
-        } break;
-      }
     }
   }
 }

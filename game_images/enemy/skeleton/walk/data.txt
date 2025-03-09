@@ -1,0 +1,14 @@
+1
+12
+100 skeleton_walk_0.png
+100 skeleton_walk_1.png
+100 skeleton_walk_2.png
+100 skeleton_walk_3.png
+100 skeleton_walk_4.png
+100 skeleton_walk_5.png
+100 skeleton_walk_6.png
+100 skeleton_walk_7.png
+100 skeleton_walk_8.png
+100 skeleton_walk_9.png
+100 skeleton_walk_10.png
+100 skeleton_walk_11.png

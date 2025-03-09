@@ -21,5 +21,6 @@ collision_direction collision_of_two_objects(const SDL_Rect *hitbox_anyone, cons
 void synchronize_hitbox_with_coordinates(SDL_Rect* hitbox, SDL_FPoint coordinates);
 void gravity(SDL_FPoint* coordinates);
 double read_from_file_double(FILE* file);
+float the_distance_between_the_centers_of_two_rect(SDL_Rect* rect_1, SDL_Rect* rect_2);
 
 #endif

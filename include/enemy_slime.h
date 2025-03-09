@@ -24,5 +24,6 @@ void set_current_sprite_enemy_slime(Enemy_slime* enemy);
 void determine_current_texture_enemy_slime(Enemy_slime* enemy);
 void death_enemy_slime(Enemy_slime* enemy);
 void determine_current_state_enemy_slime(Enemy_slime* enemy);
+void draw_enemy_slime(Enemy_slime* enemy);
 
 #endif

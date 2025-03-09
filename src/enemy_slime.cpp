@@ -1,7 +1,6 @@
 #include "../include/enemy_slime.h"
 
 void update_enemy_slime(Enemy_slime* enemy) {
-  death_enemy_slime(enemy);
   gravity_enemy(&enemy->base);
   move_enemy_slime(enemy);
   collision_with_blocks_enemy(&enemy->base);
@@ -10,6 +9,7 @@ void update_enemy_slime(Enemy_slime* enemy) {
   determine_current_texture_enemy_slime(enemy);
   set_current_sprite_enemy(&enemy->base);
   synchronize_hitbox_with_coordinates(&enemy->base.hitbox, enemy->base.coordinates);
+  death_enemy_slime(enemy);
 }
 
 void move_enemy_slime(Enemy_slime* enemy) {
@@ -53,48 +53,9 @@ void determine_current_state_enemy_slime(Enemy_slime* enemy) {
 
 //Возвращает булево значение (была ли коллизия с героем или нет)
 int collision_enemy_slime_with_hero(Enemy_slime* enemy) {
-  int is_collision = 0;
   if (enemy->current_state  == ENEMY_SLIME_DEATH)
-    return is_collision;
-  switch (collision_of_two_objects(&hero->hitbox, &enemy->base.hitbox)) {
-    case COLLISION_UP: {
-      hero->coordinates.y -= speed_dt(hero->current_speed_gravity);
-      is_collision = 1;
-    } break;
-    case COLLISION_DOWN: {
-      hero->coordinates.y += speed_dt(hero->current_speed_gravity);
-      is_collision = 1;
-    } break;
-    case COLLISION_RIGHT: {
-      if (enemy->base.direction == DIRECTION_LEFT) {
-        if (hero->speed * current_coefficient_jerk_hero() > enemy->base.speed)
-          enemy->base.coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero() + enemy->base.speed); 
-        else
-          enemy->base.coordinates.x -= speed_dt(enemy->base.speed); 
-      } else {
-        if (hero->speed * current_coefficient_jerk_hero() > enemy->base.speed)
-          enemy->base.coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero() + enemy->base.speed); 
-        else
-          enemy->base.coordinates.x -= speed_dt(enemy->base.speed); 
-      }
-      is_collision = 1;
-    } break;
-    case COLLISION_LEFT: {
-      if (enemy->base.direction == DIRECTION_LEFT) {
-        if (hero->speed * current_coefficient_jerk_hero() > enemy->base.speed)
-          enemy->base.coordinates.x += speed_dt(hero->speed * current_coefficient_jerk_hero() + enemy->base.speed); 
-        else
-          enemy->base.coordinates.x += speed_dt(enemy->base.speed); 
-      } else {
-        if (hero->speed * current_coefficient_jerk_hero() > enemy->base.speed)
-          enemy->base.coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero() + enemy->base.speed); 
-        else
-          enemy->base.coordinates.x -= speed_dt(enemy->base.speed); 
-      }
-      is_collision = 1;
-    } break;
-  }
-  return is_collision; 
+    return 0;
+  return collision_enemy_with_hero(&enemy->base);
 }
 
 void set_current_sprite_enemy_slime(Enemy_slime* enemy) {
@@ -121,6 +82,8 @@ void determine_current_texture_enemy_slime(Enemy_slime* enemy) {
 }
 
 void death_enemy_slime(Enemy_slime* enemy) {
+  if (enemy->base.health <= 0)
+    enemy->current_state = ENEMY_SLIME_DEATH;
   static double time = 0;
   if (enemy->current_state == ENEMY_SLIME_DEATH) {
     time += dt;
@@ -128,4 +91,11 @@ void death_enemy_slime(Enemy_slime* enemy) {
       enemy->base.type = ENEMY_INACTIVE;
     }
   }
+}
+
+void draw_enemy_slime(Enemy_slime* enemy) {
+  if (enemy->base.direction == DIRECTION_LEFT)
+    render_copy_enemy(&enemy->base);
+  else
+    render_copy_enemy(&enemy->base, SDL_FLIP_HORIZONTAL);
 }

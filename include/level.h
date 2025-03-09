@@ -18,6 +18,7 @@ enum Level_number {
 enum Blocks {
   BLOCK_SPAWN_HERO = '@',
   BLOCK_SPAWN_SLIME = 'S',
+  BLOCK_SPAWN_SKELETON = 'K',
   BLOCK_SPACE = ' ',
   BLOCK_GROUND = 'g',
   BLOCK_GROUND_UP = 'u',

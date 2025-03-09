@@ -12,10 +12,11 @@
 enum Enemy_type {
   ENEMY_INACTIVE = -1,
   ENEMY_SLIME,
+  ENEMY_SKELETON,
   ENEMY_AMOUNT
 };
 
-struct Enemy_base {
+typedef struct {
   void* full_enemy;
   float health;
   float damage;
@@ -31,7 +32,7 @@ struct Enemy_base {
     int current_number_sprite;
     double sprite_time_counter;
   } texture;
-};
+} Enemy_base;
 
 extern struct Enemy_container {
   int amount_enemies;
@@ -48,7 +49,9 @@ void de_init_enemies();
 void updating_enemies();
 void gravity_enemy(Enemy_base* enemy);
 void collision_with_blocks_enemy(Enemy_base* enemy);
+int collision_enemy_with_hero(Enemy_base* enemy);
 void draw_enemies();
+void render_copy_enemy(Enemy_base* enemy, SDL_RendererFlip flip = SDL_FLIP_NONE);
 void set_current_sprite_enemy(Enemy_base* enemy);
 void enemy_death(Enemy_base* enemy);
 
