@@ -1,15 +1,15 @@
 0
 13
-100 skeleton_attack_0.png
-100 skeleton_attack_1.png
-100 skeleton_attack_2.png
-100 skeleton_attack_3.png
-100 skeleton_attack_4.png
-100 skeleton_attack_5.png
-100 skeleton_attack_6.png
-100 skeleton_attack_7.png
-100 skeleton_attack_8.png
-100 skeleton_attack_9.png
-100 skeleton_attack_10.png
-100 skeleton_attack_11.png
-100 skeleton_attack_12.png
+120 skeleton_attack_0.png
+120 skeleton_attack_1.png
+120 skeleton_attack_2.png
+120 skeleton_attack_3.png
+120 skeleton_attack_4.png
+120 skeleton_attack_5.png
+120 skeleton_attack_6.png
+120 skeleton_attack_7.png
+120 skeleton_attack_8.png
+120 skeleton_attack_9.png
+120 skeleton_attack_10.png
+120 skeleton_attack_11.png
+120 skeleton_attack_12.png

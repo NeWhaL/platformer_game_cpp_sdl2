@@ -329,12 +329,15 @@ void attack_hero() {
   if (keyboard[SDL_SCANCODE_J]) {
     hero->state = HERO_ATTACK;
     hero->attack.type = HERO_ATTACK_BASE_1;
+    hero->attack.cause_damage = 1;
   } else if (keyboard[SDL_SCANCODE_K]) {
     hero->state = HERO_ATTACK;
     hero->attack.type = HERO_ATTACK_BASE_2;
+    hero->attack.cause_damage = 1;
   } else if (keyboard[SDL_SCANCODE_L]) {
     hero->state = HERO_ATTACK;
     hero->attack.type = HERO_ATTACK_BASE_3;
+    hero->attack.cause_damage = 1;
   }
 }
 
@@ -346,8 +349,8 @@ void attack_logic_hero() {
     hero->attack.type = HERO_ATTACK_NONE;
     time = 0;
     return;
-  } else if (is_the_dealing_damage_now_hero()) {
-    float damage = get_damage_hero(hero->attack.type);
+  } else if (is_the_dealing_damage_now_hero() && hero->attack.cause_damage) {
+    hero->attack.cause_damage = 0; 
     //Получить хитбокс удара и проверить коллиизию с противниками.
     SDL_Rect attack_hitbox = hero->hitbox;
     for (int i = 0; i < enemy_container->amount_enemies; ++i) {  
@@ -355,7 +358,7 @@ void attack_logic_hero() {
       if (enemy->type == ENEMY_INACTIVE ||
           collision_of_two_objects(&attack_hitbox, &enemy->hitbox) == COLLISION_NONE)
         continue;
-      enemy->health -= damage;
+      enemy->health -= get_damage_hero(hero->attack.type);
     }
   }
 }

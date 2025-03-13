@@ -17,6 +17,8 @@ struct Enemy_skeleton {
   Enemy_skeleton_state prev_state;
   Enemy_skeleton_state current_state;
   float reaction_range_walk;
+  double sprites_timer;
+  float prev_health; 
 };
 
 void update_enemy_skeleton(Enemy_skeleton* enemy);
@@ -28,7 +30,8 @@ void determine_current_texture_enemy_skeleton(Enemy_skeleton* enemy);
 void death_enemy_skeleton(Enemy_skeleton* enemy);
 void determine_current_state_enemy_skeleton(Enemy_skeleton* enemy);
 float get_distance_reaction_attack_skeleton(Enemy_skeleton* enemy);
-direction_movement determine_direction_movement_skeleton(Enemy_skeleton* enemy);
+direction_movement determine_direction_movement_enemy_skeleton(Enemy_skeleton* enemy);
+void check_for_damage_enemy_skeleton(Enemy_skeleton* enemy);
 void draw_enemy_skeleton(Enemy_skeleton* enemy);
 
 #endif

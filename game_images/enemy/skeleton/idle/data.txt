@@ -1,6 +1,6 @@
 1
 4
-100 skeleton_idle_0.png
-100 skeleton_idle_1.png
-100 skeleton_idle_2.png
-100 skeleton_idle_3.png
+150 skeleton_idle_0.png
+150 skeleton_idle_1.png
+150 skeleton_idle_2.png
+150 skeleton_idle_3.png

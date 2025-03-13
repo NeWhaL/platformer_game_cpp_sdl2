@@ -4,8 +4,8 @@ void update_enemy_skeleton(Enemy_skeleton* enemy) {
   gravity_enemy(&enemy->base);
   move_enemy_skeleton(enemy);
   collision_with_blocks_enemy(&enemy->base);
-  skeleton_attack_on_the_hero(enemy);
   determine_current_state_enemy_skeleton(enemy);
+  skeleton_attack_on_the_hero(enemy);
   determine_current_texture_enemy_skeleton(enemy);
   set_current_sprite_enemy(&enemy->base); 
   synchronize_hitbox_with_coordinates(&enemy->base.hitbox, enemy->base.coordinates);
@@ -22,6 +22,13 @@ void move_enemy_skeleton(Enemy_skeleton* enemy) {
 }
 
 void skeleton_attack_on_the_hero(Enemy_skeleton* enemy) {
+  if (enemy->current_state != ENEMY_SKELETON_ATTACK)
+    return;
+  enemy->sprites_timer += dt;
+  if (enemy->sprites_timer >= time_for_one_texture_iteration(enemy->base.texture.current)) {
+    enemy->sprites_timer = 0;
+    enemy->current_state = ENEMY_SKELETON_IDLE;
+  }
   if (hero->state == HERO_DEATH || !collision_enemy_skeleton_with_hero(enemy))
     return;
   if (hero->state == HERO_ATTACK && is_the_dealing_damage_now_hero())
@@ -77,25 +84,43 @@ void death_enemy_skeleton(Enemy_skeleton* enemy) {
 }
 
 void determine_current_state_enemy_skeleton(Enemy_skeleton* enemy) {
-  if (enemy->current_state == ENEMY_SKELETON_DEATH)
+  check_for_damage_enemy_skeleton(enemy);
+  if (enemy->current_state == ENEMY_SKELETON_DEATH || enemy->current_state == ENEMY_SKELETON_HURT)
     return;
   float distance = the_distance_between_the_centers_of_two_rect(&hero->hitbox, &enemy->base.hitbox);
   if (distance > enemy->reaction_range_walk) {
     enemy->current_state = ENEMY_SKELETON_IDLE;
   } else if (distance > get_distance_reaction_attack_skeleton(enemy)) {
+    if (enemy->current_state == ENEMY_SKELETON_ATTACK)
+      return;
     enemy->current_state = ENEMY_SKELETON_WALK;
-    enemy->base.direction = determine_direction_movement_skeleton(enemy);
+    enemy->base.direction = determine_direction_movement_enemy_skeleton(enemy);
   } else {
     enemy->current_state = ENEMY_SKELETON_ATTACK;
-    enemy->base.direction = determine_direction_movement_skeleton(enemy);
+    enemy->base.direction = determine_direction_movement_enemy_skeleton(enemy);
+  }
+}
+
+void check_for_damage_enemy_skeleton(Enemy_skeleton* enemy) {
+  if (enemy->prev_health > enemy->base.health) {
+    enemy->current_state = ENEMY_SKELETON_HURT;
+    enemy->prev_health = enemy->base.health;
+  } else if (enemy->current_state == ENEMY_SKELETON_HURT) {
+    enemy->sprites_timer += dt;
+    if (enemy->sprites_timer >= time_for_one_texture_iteration(enemy->base.texture.current)) {
+      enemy->sprites_timer = 0;
+      enemy->current_state = ENEMY_SKELETON_IDLE;
+    }
   }
 }
 
 float get_distance_reaction_attack_skeleton(Enemy_skeleton* enemy) {
-  return enemy->reaction_range_walk * 0.5;
+  return enemy->reaction_range_walk * 0.4;
 }
 
-direction_movement determine_direction_movement_skeleton(Enemy_skeleton* enemy) {
+direction_movement determine_direction_movement_enemy_skeleton(Enemy_skeleton* enemy) {
+  if (hero->state == HERO_IDLE)
+    return enemy->base.direction;
   if (hero->coordinates.x + hero->hitbox.w / 2 < enemy->base.coordinates.x + enemy->base.hitbox.w / 2)
     return DIRECTION_LEFT;
   return DIRECTION_RIGHT;
@@ -106,5 +131,4 @@ void draw_enemy_skeleton(Enemy_skeleton* enemy) {
     render_copy_enemy(&enemy->base, SDL_FLIP_HORIZONTAL);
   else
     render_copy_enemy(&enemy->base);
-
 }

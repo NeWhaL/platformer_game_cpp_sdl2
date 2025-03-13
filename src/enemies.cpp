@@ -78,9 +78,11 @@ void init_enemies() {
           Enemy_skeleton* new_skeleton = (Enemy_skeleton*)malloc(sizeof(Enemy_skeleton));
           *new_skeleton = skeleton;
           new_skeleton->base.full_enemy = new_skeleton;
+          new_skeleton->prev_health = new_skeleton->base.health;
           new_skeleton->base.type = ENEMY_SKELETON;
           new_skeleton->current_state = ENEMY_SKELETON_IDLE;
           new_skeleton->prev_state = new_skeleton->current_state;
+          new_skeleton->sprites_timer = 0;
           new_skeleton->base.hitbox.w = enemy_container->textures[new_skeleton->base.type][new_skeleton->current_state].sprites[0].size.w;
           new_skeleton->base.hitbox.h = enemy_container->textures[new_skeleton->base.type][new_skeleton->current_state].sprites[0].size.h;
           new_skeleton->base.texture.current = &enemy_container->textures[new_skeleton->base.type][new_skeleton->current_state];
