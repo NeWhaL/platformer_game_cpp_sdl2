@@ -1,0 +1,7 @@
+0
+5
+150 ordinary_shot_death_0.png
+150 ordinary_shot_death_1.png
+150 ordinary_shot_death_2.png
+150 ordinary_shot_death_3.png
+150 ordinary_shot_death_4.png
