@@ -86,6 +86,7 @@ void updating_platforms();
 void special_platform_action(Platform* platform);
 void move_platform(Platform* platform);
 void collision_platform_with_blocks(Platform* platform);
+int is_it_a_block(Blocks block_type);
 void draw_platforms();
 
 #endif

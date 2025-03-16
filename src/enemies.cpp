@@ -180,29 +180,27 @@ void collision_with_blocks_enemy(Enemy_base* enemy) {
   int is_enemy_standing = 0;
   for (int i = 0; i < level->amount_blocks.y; ++i) {
     for (int j = 0; j < level->amount_blocks.x; ++j) {
-      Blocks b_type = Blocks(level->map[i][j]);
-      if (b_type != BLOCK_SPACE && b_type != BLOCK_PLATFORM_BASE && b_type != BLOCK_SPAWN_HERO &&
-          b_type != BLOCK_SPAWN_SLIME && b_type != BLOCK_SPAWN_SKELETON) {
-        position_block.x = j * level->real_size_edge_block;
-        position_block.y = i * level->real_size_edge_block;
-        switch (collision_of_two_objects(&enemy->hitbox, &position_block)) {
-          case COLLISION_LEFT: {
-            enemy->coordinates.x -= speed_dt(enemy->speed);
-            enemy->direction = DIRECTION_LEFT;
-          } break;
-          case COLLISION_RIGHT: {
-            enemy->coordinates.x += speed_dt(enemy->speed);
-            enemy->direction = DIRECTION_RIGHT;
-          } break;
-          case COLLISION_UP: {
-            enemy->coordinates.y -= speed_dt(enemy->current_speed_gravity);
-            enemy->current_speed_gravity = 0;
-            is_enemy_standing = 1;
-          } break;
-          case COLLISION_DOWN: {
-            enemy->coordinates.y += speed_dt(enemy->current_speed_gravity);
-          } break;
-        }
+      if (is_it_a_block(Blocks(level->map[i][j])))
+        continue;
+      position_block.x = j * level->real_size_edge_block;
+      position_block.y = i * level->real_size_edge_block;
+      switch (collision_of_two_objects(&enemy->hitbox, &position_block)) {
+        case COLLISION_LEFT: {
+          enemy->coordinates.x -= speed_dt(enemy->speed);
+          enemy->direction = DIRECTION_LEFT;
+        } break;
+        case COLLISION_RIGHT: {
+          enemy->coordinates.x += speed_dt(enemy->speed);
+          enemy->direction = DIRECTION_RIGHT;
+        } break;
+        case COLLISION_UP: {
+          enemy->coordinates.y -= speed_dt(enemy->current_speed_gravity);
+          enemy->current_speed_gravity = 0;
+          is_enemy_standing = 1;
+        } break;
+        case COLLISION_DOWN: {
+          enemy->coordinates.y += speed_dt(enemy->current_speed_gravity);
+        } break;
       }
     }
   }

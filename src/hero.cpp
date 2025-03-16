@@ -207,30 +207,27 @@ Hero_state collision_with_blocks_hero() {
   int is_collision_up = 0;
   for (int i = 0; i < level->amount_blocks.y; ++i) {
     for (int j = 0; j < level->amount_blocks.x; ++j) {
-      Blocks b_type = Blocks(level->map[i][j]);
-      if (b_type != BLOCK_SPACE && b_type != BLOCK_PLATFORM_BASE && b_type != BLOCK_SPAWN_HERO &&
-          b_type != BLOCK_SPAWN_SLIME && b_type != BLOCK_SPAWN_SKELETON &&
-          b_type != BLOCK_PLATFORM_BREAKING && b_type != BLOCK_PLATFORM_DISAPPEARING) {
-        position_block.x = j * level->real_size_edge_block;
-        position_block.y = i * level->real_size_edge_block;
-        switch (collision_of_two_objects(&hero->hitbox, &position_block)) {
-          case COLLISION_LEFT: {
-            hero->coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero());
-          } break;
-          case COLLISION_RIGHT: {
-            hero->coordinates.x += speed_dt(hero->speed * current_coefficient_jerk_hero());
-          } break;
-          case COLLISION_UP: {
-            hero->current_speed_gravity = 0;
-            is_collision_up = 1;
-          } break;
-          case COLLISION_DOWN: {
-            hero->coordinates.y += speed_dt(sqrt(speed_gravity * hero->jump_height));
-            state = HERO_FALL;
-            if (hero->state != HERO_HURT)
-              hero->state = HERO_FALL;
-          } break;
-        }
+      if (is_it_a_block(Blocks(level->map[i][j])))
+        continue;
+      position_block.x = j * level->real_size_edge_block;
+      position_block.y = i * level->real_size_edge_block;
+      switch (collision_of_two_objects(&hero->hitbox, &position_block)) {
+        case COLLISION_LEFT: {
+          hero->coordinates.x -= speed_dt(hero->speed * current_coefficient_jerk_hero());
+        } break;
+        case COLLISION_RIGHT: {
+          hero->coordinates.x += speed_dt(hero->speed * current_coefficient_jerk_hero());
+        } break;
+        case COLLISION_UP: {
+          hero->current_speed_gravity = 0;
+          is_collision_up = 1;
+        } break;
+        case COLLISION_DOWN: {
+          hero->coordinates.y += speed_dt(sqrt(speed_gravity * hero->jump_height));
+          state = HERO_FALL;
+          if (hero->state != HERO_HURT)
+            hero->state = HERO_FALL;
+        } break;
       }
     }
   }
@@ -338,6 +335,11 @@ void attack_hero() {
     hero->state = HERO_ATTACK;
     hero->attack.type = HERO_ATTACK_BASE_3;
     hero->attack.cause_damage = 1;
+  } else if (keyboard[SDL_SCANCODE_H]) {
+    hero->state = HERO_ATTACK;
+    hero->attack.type = HERO_ATTACK_BASE_1;
+    hero->attack.cause_damage = 1;
+    add_shot_in_shots_container(hero->coordinates, SHOT_CREATOR_HERO, SHOT_TYPE_ORDINARY, hero->direction, 400);
   }
 }
 

@@ -126,6 +126,13 @@ void updating_level() {
   updating_platforms();
 }
 
+int is_it_a_block(Blocks block_type) {
+  return block_type == BLOCK_SPACE || block_type == BLOCK_PLATFORM_BASE || 
+         block_type == BLOCK_SPAWN_HERO || block_type == BLOCK_SPAWN_SLIME || 
+         block_type == BLOCK_SPAWN_SKELETON || block_type == BLOCK_PLATFORM_BREAKING || 
+         block_type == BLOCK_PLATFORM_DISAPPEARING;
+}
+
 void init_platforms() {
   amount_platforms = 100;
   platforms = (Platform*)malloc(sizeof(Platform) * amount_platforms);
@@ -176,43 +183,6 @@ void init_platforms() {
         is_prev_platform = 0;
         platform = &platforms[++amount_platforms];
       }
-
-      // Blocks b_type = (Blocks)level->map[i][j];
-      // if (b_type == BLOCK_PLATFORM_BASE) {
-      //   if (is_prev_platform) {
-      //     platform->amount_sprite++;
-      //     continue;
-      //   }
-      //   platform->amount_sprite = 1;
-      //   platform->coordinates = { float(j * level->real_size_edge_block), float(i * level->real_size_edge_block) };
-      //   platform->speed = 50;
-      //   platform->type = PLATFORM_BREAKING;
-      //   platform->hitbox = {
-      //     int(platform->coordinates.x),
-      //     int(platform->coordinates.y),
-      //     level->real_size_edge_block,
-      //     level->real_size_edge_block
-      //   };
-      //   platform->direction = DIRECTION_LEFT;
-      //   is_prev_platform = 1;
-      //   switch (platform->type) {
-      //     case PLATFORM_DISAPPEARING: {
-      //       platform->special.disappearing.counter_time = 0;
-      //       platform->special.disappearing.active_time = 3000;
-      //       platform->special.disappearing.inactive_time = 1000;
-      //       platform->special.disappearing.is_active = 1;
-      //     } break;
-      //     case PLATFORM_BREAKING: {
-      //       platform->special.breaking.max_remaining_time = 1500;
-      //       platform->special.breaking.remaining_time = platform->special.breaking.max_remaining_time;
-      //       platform->special.breaking.was_the_hero_standing_on_the_platform = 0;
-      //     } break;
-      //   }
-      // } else if (is_prev_platform) {
-      //   platform->hitbox.w *= platform->amount_sprite;
-      //   is_prev_platform = 0;
-      //   platform = &platforms[++amount_platforms];
-      // }
     }
   }
   platforms = (Platform*)realloc(platforms, sizeof(Platform) * amount_platforms);
@@ -272,9 +242,7 @@ void move_platform(Platform* platform) {
 void collision_platform_with_blocks(Platform* platform) {
   for (int i = 0; i < level->amount_blocks.y; ++i) {
     for (int j = 0; j < level->amount_blocks.x; ++j) {
-      Blocks b_type = Blocks(level->map[i][j]);
-      if (b_type == BLOCK_SPACE || b_type == BLOCK_PLATFORM_BASE || b_type == BLOCK_SPAWN_HERO ||
-          b_type == BLOCK_SPAWN_SLIME || b_type == BLOCK_PLATFORM_BREAKING || b_type == BLOCK_PLATFORM_DISAPPEARING)
+      if (is_it_a_block(Blocks(level->map[i][j])))
         continue;
       SDL_Rect hitbox_block = { level->real_size_edge_block * j, level->real_size_edge_block * i,
         level->real_size_edge_block, level->real_size_edge_block };

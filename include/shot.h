@@ -4,6 +4,8 @@
 #include "sdl.h"
 #include "global_var.h"
 #include "texture.h"
+#include "level.h"
+#include "other_function.h"
 
 enum Shot_type {
   SHOT_TYPE_ORDINARY,
@@ -25,11 +27,16 @@ enum Shot_state {
 struct Shot {
   Shot_type type;
   Shot_creator creator;
+  Shot_state current_state;
+  Shot_state prev_state;
   SDL_FPoint coordinates;
   SDL_Rect hitbox;
   direction_movement direction;
   float range;
   float speed;
+  Shot* next;
+  Shot* prev;
+  double death_time;
   struct {
     Texture* current;
     int current_number_sprite;
@@ -39,10 +46,8 @@ struct Shot {
 
 extern struct Shot_container {
   Texture** textures;
-  int capacity; //сколько выстрелов может находиться в контейнере
-  int coefficient_capacity; //при перевыделении памяти нужно
-  int amount_shots; //сколько выстрелов лежит в контейнере по факту
-  Shot** all;
+  Shot* head;
+  Shot* tail;
 } shots;
 
 void init_shot_container();
@@ -53,6 +58,12 @@ Shot* create_shot(Shot_type type, Shot_creator creator, SDL_FPoint coordinates, 
 void destroy_shot(Shot* shot);
 void add_shot_in_shots_container(SDL_FPoint coordinates_spawn, Shot_creator creator_type, 
                                  Shot_type shot_type, direction_movement direction, float range);
+void update_shots();
+void set_current_sprite_shot(Shot* shot);
+void set_current_texture_shot(Texture* texture);
+void determine_current_texture_shot(Shot* shot);
+void collision_shot_with_blocks(Shot* shot);
+void death_shot(Shot* shot);
 
 void move_ordinary_shot(Shot* shot);
 void move_homing_shot(Shot* shot);

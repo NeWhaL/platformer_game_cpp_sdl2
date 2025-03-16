@@ -9,6 +9,7 @@
 #include "direction.h"
 #include "application.h"
 #include "enemy_base.h"
+#include "shot.h"
 
 //Различные состояния, в которых может находиться герой
 enum Hero_state {

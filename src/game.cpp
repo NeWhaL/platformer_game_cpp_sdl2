@@ -10,6 +10,7 @@ void init_game(const char* save_file) {
     init_hero(); 
     // init_enemies(LEVEL_1);
     init_enemies();
+    init_shot_container();
     is_init_game = 0;
   } else {
     load_level(save_file);
@@ -23,6 +24,7 @@ void de_init_game() {
   de_init_enemies();
   de_init_hero();
   de_init_level();
+  de_init_shot_container();
 }
 
 void game(const char* save_file) {
@@ -54,6 +56,7 @@ void updating_game_logic() {
   updating_dt();
   updating_level();
   updating_enemies();
+  update_shots();
   update_hero();
 }
 
@@ -61,5 +64,6 @@ void draw_game_frame() {
   draw_level();
   draw_enemies();
   draw_hero();
+  draw_shots();
   SDL_RenderPresent(renderer);
 }
