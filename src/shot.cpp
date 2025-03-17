@@ -21,10 +21,8 @@ void init_shot_textures() {
 
 void de_init_shot_container() {
   de_init_shot_textures();
-  for (Shot* shot_delete = shots.head; shot_delete != NULL; shot_delete = shots.head) {
-    shots.head = shots.head->next;
+  for (Shot* shot_delete = shots.head; shot_delete != NULL; shot_delete = shots.head)
     destroy_shot(shot_delete);
-  }
   shots.head = shots.tail = NULL;
 }
 
@@ -37,7 +35,7 @@ void de_init_shot_textures() {
   free(shots.textures);
 }
 
-Shot* create_shot(Shot_type type, Shot_creator creator, SDL_FPoint coordinates, float range, direction_movement direction) {
+Shot* create_shot(Shot_type type, Shot_creator creator, SDL_FPoint coordinates, float range, float damage, direction_movement direction) {
   Shot* shot = (Shot*)malloc(sizeof(Shot));
   shot->current_state = SHOT_STATE_MOVE;
   shot->prev_state = shot->current_state;
@@ -45,7 +43,22 @@ Shot* create_shot(Shot_type type, Shot_creator creator, SDL_FPoint coordinates, 
   shot->type = type;
   shot->coordinates = coordinates;
   shot->range = range;
-  shot->direction = direction;
+  shot->damage = damage;
+  switch (type) {
+    case SHOT_TYPE_ORDINARY: {
+      shot->direction.ordinary = direction;
+    } break;
+    case SHOT_TYPE_HOMING: {
+      switch (direction) {
+        case DIRECTION_RIGHT: {
+          shot->direction.homing = {1, 0};
+        } break;
+        case DIRECTION_LEFT: {
+          shot->direction.homing = {-1, 0};
+        } break;
+      }
+    };
+  }
   shot->speed = 250;
   shot->texture.current_number_sprite = 0;
   shot->texture.sprite_time_counter = 0;
@@ -81,8 +94,8 @@ void destroy_shot(Shot* shot) {
 }
 
 void add_shot_in_shots_container(SDL_FPoint coordinates_spawn, Shot_creator creator_type, 
-                                 Shot_type shot_type, direction_movement direction, float range) {
-  Shot* new_shot = create_shot(shot_type, creator_type, coordinates_spawn, range, direction);
+                                 Shot_type shot_type, direction_movement direction, float range, float damage) {
+  Shot* new_shot = create_shot(shot_type, creator_type, coordinates_spawn, range, damage, direction);
   if (!shots.head) {
     shots.head = shots.tail = new_shot;
   } else if (shots.head == shots.tail) {
@@ -101,22 +114,35 @@ void update_shots() {
     switch (current->type) {
       case SHOT_TYPE_ORDINARY: {
         move_ordinary_shot(current);
-        collision_shot_with_blocks(current);
-        determine_current_texture_shot(current);
-        set_current_sprite_shot(current);
-        death_shot(current);
       } break;
       case SHOT_TYPE_HOMING: {
-        // move_homing_shot(current);
+        determine_direction_homing_shot(current);
+        move_homing_shot(current);
       } break;
     }
+    update_range_shot(current);
+    collision_shot_with_platforms(current);
+    collision_shot_with_blocks(current);
+    collision_shot_with_enemies(current);
+    collision_shot_with_hero(current);
+    determine_current_texture_shot(current);
+    set_current_sprite_shot(current);
+    death_shot(current);
   }
+}
+
+void update_range_shot(Shot* shot) {
+  if (shot->current_state == SHOT_STATE_DEATH)
+    return;
+  shot->range -= speed_dt(shot->speed);
+  if (shot->range <= 0)
+    shot->current_state = SHOT_STATE_DEATH;
 }
 
 void move_ordinary_shot(Shot* shot) {
   if (shot->current_state == SHOT_STATE_DEATH)
     return;
-  switch (shot->direction) {
+  switch (shot->direction.ordinary) {
     case DIRECTION_LEFT: {
       shot->coordinates.x -= speed_dt(shot->speed);
     } break;
@@ -130,6 +156,34 @@ void move_ordinary_shot(Shot* shot) {
 void move_homing_shot(Shot* shot) {
   if (shot->current_state == SHOT_STATE_DEATH)
     return;
+  shot->coordinates.x += speed_dt(shot->speed) * shot->direction.homing.x;
+  shot->coordinates.y += speed_dt(shot->speed) * shot->direction.homing.y;
+  synchronize_hitbox_with_coordinates(&shot->hitbox, shot->coordinates);
+}
+
+void determine_direction_homing_shot(Shot* current) {
+  double target_distance = INT32_MAX;
+  SDL_FPoint target_coordinates = { 0, 0 };
+  switch (current->creator) {
+    case SHOT_CREATOR_HERO: {
+      for (int i = 0 ; i < enemy_container->amount_enemies; ++i) {
+        if (enemy_container->enemies[i]->type == ENEMY_INACTIVE)
+          continue;
+        double current_distance = the_distance_between_the_centers_of_two_rect(&enemy_container->enemies[i]->hitbox, &current->hitbox);
+        if (target_distance > current_distance) {
+          target_distance = current_distance;
+          target_coordinates = enemy_container->enemies[i]->coordinates;
+        }
+      }
+      if (target_coordinates.x == 0 && target_coordinates.y == 0)
+        return;
+    } break;
+    case SHOT_CREATOR_ENEMY: {
+      target_distance = the_distance_between_the_centers_of_two_rect(&hero->hitbox, &current->hitbox);
+    } break;
+  }
+  current->direction.homing.x = (target_coordinates.x - current->coordinates.x) / target_distance;  
+  current->direction.homing.y = (target_coordinates.y - current->coordinates.y) / target_distance;  
 }
 
 void draw_shots() {
@@ -139,6 +193,16 @@ void draw_shots() {
 
 void render_copy_shot(Shot* shot) {
   SDL_RendererFlip flip = SDL_FLIP_NONE;
+  switch (shot->type) {
+    case SHOT_TYPE_ORDINARY: {
+      if (shot->direction.ordinary == DIRECTION_LEFT)
+        flip = SDL_FLIP_HORIZONTAL;
+    } break;
+    case SHOT_TYPE_HOMING: {
+      if (shot->direction.homing.x < 0)
+        flip = SDL_FLIP_HORIZONTAL;
+    } break;
+  }
   SDL_RenderCopyEx(
     renderer,
     shot->texture.current->sprites[shot->texture.current_number_sprite].sprite,
@@ -149,12 +213,21 @@ void render_copy_shot(Shot* shot) {
 }
 
 void set_current_sprite_shot(Shot* shot) {
+  direction_movement current_direction = DIRECTION_NONE;
+  switch (shot->type) {
+    case SHOT_TYPE_ORDINARY: {
+      current_direction = shot->direction.ordinary;
+    } break;
+    case SHOT_TYPE_HOMING: {
+      current_direction = DIRECTION_LEFT;
+    } break;
+  }
   set_current_sprite(
     shot->texture.current,
     &shot->texture.current_number_sprite,
     &shot->hitbox,
     &shot->coordinates,
-    shot->direction,
+    current_direction,
     &shot->texture.sprite_time_counter,
     shot->current_state != shot->prev_state
   );
@@ -194,4 +267,34 @@ void death_shot(Shot* shot) {
   if (shot->death_time >= time_for_one_texture_iteration(shot->texture.current)) {
     destroy_shot(shot);
   }
+}
+
+void collision_shot_with_platforms(Shot* shot) {
+  if (shot->current_state == SHOT_STATE_DEATH)
+    return;
+  for (int i = 0; i < amount_platforms; ++i) {
+    if (collision_of_two_objects(&shot->hitbox, &platforms[i].hitbox)) {
+      shot->current_state = SHOT_STATE_DEATH;
+      return;
+    }
+  }
+}
+
+void collision_shot_with_enemies(Shot* shot) {
+  if (shot->current_state == SHOT_STATE_DEATH || shot->creator == SHOT_CREATOR_ENEMY)
+    return;
+  for (int i = 0; i < enemy_container->amount_enemies; ++i) {
+    Enemy_base* enemy = enemy_container->enemies[i];
+    if (enemy->type == ENEMY_INACTIVE)
+      continue;
+    if (collision_of_two_objects(&shot->hitbox, &enemy->hitbox)) {
+      shot->current_state = SHOT_STATE_DEATH;
+      enemy->health -= shot->damage; 
+    }
+  }
+}
+
+void collision_shot_with_hero(Shot* shot) {
+  if (shot->current_state == SHOT_STATE_DEATH || shot->creator == SHOT_CREATOR_HERO)
+    return;
 }

@@ -1,8 +1,7 @@
 #include "../include/hero.h"
 
 Hero* hero;
-const int amount_attack_hero = 3;
-Attack_type_info attack_info_hero[amount_attack_hero];
+Attack_type_info attack_info_hero[HERO_ATTACK_AMOUNT];
 
 void init_hero() {
   if (!(hero = (Hero*)malloc(sizeof(Hero)))) {
@@ -29,6 +28,8 @@ void init_hero() {
   hero->attack.cause_damage = 0;
   hero->attack.type = HERO_ATTACK_NONE;
   hero->attack.hitbox = { 0, 0, 0, 0 };
+  hero->attack.max_combo_attack_timer = 1000;
+  hero->attack.combo_attack_timer = hero->attack.max_combo_attack_timer;
   hero->damage_timer = 1000;
   hero->max_damage_timer = hero->damage_timer;
   hero->health = 10;
@@ -109,10 +110,10 @@ SDL_FPoint get_coordinates_for_new_game_hero() {
 
 void draw_hero() {
   SDL_Texture* current_sprite = hero->textures.current->sprites[hero->textures.current_number_sprite].sprite;
-  if (hero->direction == DIRECTION_RIGHT)
-    SDL_RenderCopy(renderer, current_sprite, NULL, &hero->hitbox);
-  else
-    SDL_RenderCopyEx(renderer, current_sprite, NULL, &hero->hitbox, 0, NULL, SDL_FLIP_HORIZONTAL);
+  SDL_RendererFlip flip = SDL_FLIP_NONE;
+  if (hero->direction == DIRECTION_LEFT)
+    flip = SDL_FLIP_HORIZONTAL; 
+  SDL_RenderCopyEx(renderer, current_sprite, NULL, &hero->hitbox, 0, NULL, flip);
 }
 
 void update_hero() {
@@ -316,6 +317,7 @@ Hero_state collision_platforms_with_hero() {
 }
 
 void attack_hero() {
+  attack_combo_logic_hero();
   if (hero->state == HERO_DEATH || hero->state == HERO_HURT)
     return;
   if (hero->state == HERO_ATTACK) {
@@ -323,6 +325,22 @@ void attack_hero() {
     return;
   } else if (hero->state != HERO_IDLE && hero->state != HERO_WALK && hero->state != HERO_RUN)
     return;
+  if (keyboard[SDL_SCANCODE_H] && keyboard[SDL_SCANCODE_J]) { //обычный выстрел
+    if (hero->attack.combo_attack_timer >= hero->attack.max_combo_attack_timer) {
+      hero->attack.combo_attack_timer = 0;
+      add_shot_in_shots_container(hero->coordinates, SHOT_CREATOR_HERO, SHOT_TYPE_ORDINARY, 
+                                  hero->direction, 400, hero->attack.pure_damage);
+    }
+    return;
+  } else if (keyboard[SDL_SCANCODE_H] && keyboard[SDL_SCANCODE_K]) {//самонаводящийся выстрел
+    if (hero->attack.combo_attack_timer >= hero->attack.max_combo_attack_timer) {
+      hero->attack.combo_attack_timer = 0;
+      add_shot_in_shots_container(hero->coordinates, SHOT_CREATOR_HERO, SHOT_TYPE_HOMING, 
+                                  hero->direction, 400, hero->attack.pure_damage);
+    }
+    return;
+  }
+
   if (keyboard[SDL_SCANCODE_J]) {
     hero->state = HERO_ATTACK;
     hero->attack.type = HERO_ATTACK_BASE_1;
@@ -335,12 +353,12 @@ void attack_hero() {
     hero->state = HERO_ATTACK;
     hero->attack.type = HERO_ATTACK_BASE_3;
     hero->attack.cause_damage = 1;
-  } else if (keyboard[SDL_SCANCODE_H]) {
-    hero->state = HERO_ATTACK;
-    hero->attack.type = HERO_ATTACK_BASE_1;
-    hero->attack.cause_damage = 1;
-    add_shot_in_shots_container(hero->coordinates, SHOT_CREATOR_HERO, SHOT_TYPE_ORDINARY, hero->direction, 400);
   }
+}
+
+void attack_combo_logic_hero() {
+  if (hero->attack.combo_attack_timer < hero->attack.max_combo_attack_timer)
+    hero->attack.combo_attack_timer += dt;
 }
 
 void attack_logic_hero() {

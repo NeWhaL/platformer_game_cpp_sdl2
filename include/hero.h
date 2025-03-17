@@ -39,7 +39,6 @@ struct Attack_type_info {
 };
 
 //Для каждой атаки свой множитель и свой стартовый спрайт нанесения урона
-extern const int amount_attack_hero;
 extern Attack_type_info attack_info_hero[];
 
 extern struct Hero {
@@ -64,6 +63,8 @@ extern struct Hero {
     int cause_damage;
     Attack_type type;
     SDL_Rect hitbox;
+    double max_combo_attack_timer;
+    double combo_attack_timer;
   } attack;
   Hero_state state;
 } *hero;
@@ -90,6 +91,7 @@ void attack_hero();
 int is_the_dealing_damage_now_hero();
 float get_damage_hero(Attack_type type);
 void attack_logic_hero();
+void attack_combo_logic_hero();
 void set_current_texture_hero(Texture* texture);
 void determine_current_texture_hero();
 void reaction_hero_to_hurt();
