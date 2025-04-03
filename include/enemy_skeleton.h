@@ -2,6 +2,7 @@
 #define ENEMY_SKELETON_H
 
 #include "enemy_base.h"
+#include "hero.h"
 
 enum Enemy_skeleton_state {
   ENEMY_SKELETON_IDLE,

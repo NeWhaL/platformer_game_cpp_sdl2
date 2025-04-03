@@ -1,0 +1,8 @@
+0
+6
+150 hero_knight_attack_1_0.png
+300 hero_knight_attack_1_1.png
+350 hero_knight_attack_1_2.png
+200 hero_knight_attack_1_3.png
+200 hero_knight_attack_1_4.png
+100 hero_knight_attack_1_5.png

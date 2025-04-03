@@ -7,12 +7,12 @@
 #include "texture.h"
 #include "direction.h"
 #include "other_function.h"
-#include "hero.h"
 
 enum Enemy_type {
   ENEMY_INACTIVE = -1,
   ENEMY_SLIME,
   ENEMY_SKELETON,
+  ENEMY_SHOOTER,
   ENEMY_AMOUNT
 };
 
@@ -27,6 +27,7 @@ typedef struct {
   SDL_Rect hitbox;
   float current_speed_gravity;
   int is_standing;
+  double death_time;
   struct {
     Texture* current;
     int current_number_sprite;
@@ -52,7 +53,7 @@ void collision_with_blocks_enemy(Enemy_base* enemy);
 int collision_enemy_with_hero(Enemy_base* enemy);
 void draw_enemies();
 void render_copy_enemy(Enemy_base* enemy, SDL_RendererFlip flip = SDL_FLIP_NONE);
-void set_current_sprite_enemy(Enemy_base* enemy);
 void enemy_death(Enemy_base* enemy);
+void de_init_enemy_texture(int enemy_type, int enemy_amount_state);
 
 #endif

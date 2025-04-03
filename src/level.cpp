@@ -129,8 +129,8 @@ void updating_level() {
 int is_it_a_block(Blocks block_type) {
   return block_type == BLOCK_SPACE || block_type == BLOCK_PLATFORM_BASE || 
          block_type == BLOCK_SPAWN_HERO || block_type == BLOCK_SPAWN_SLIME || 
-         block_type == BLOCK_SPAWN_SKELETON || block_type == BLOCK_PLATFORM_BREAKING || 
-         block_type == BLOCK_PLATFORM_DISAPPEARING;
+         block_type == BLOCK_SPAWN_SKELETON || block_type == BLOCK_SPAWN_SHOOTER ||
+         block_type == BLOCK_PLATFORM_BREAKING || block_type == BLOCK_PLATFORM_DISAPPEARING;
 }
 
 void init_platforms() {

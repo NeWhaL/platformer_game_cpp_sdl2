@@ -1,4 +1,5 @@
 #include "../include/shot.h"
+#include "../include/hero.h"
 
 Shot_container shots;
 
@@ -35,7 +36,7 @@ void de_init_shot_textures() {
   free(shots.textures);
 }
 
-Shot* create_shot(Shot_type type, Shot_creator creator, SDL_FPoint coordinates, float range, float damage, direction_movement direction) {
+Shot* create_shot(Shot_type type, Shot_creator creator, SDL_FPoint coordinates, float range, float damage, float speed, direction_movement direction) {
   Shot* shot = (Shot*)malloc(sizeof(Shot));
   shot->current_state = SHOT_STATE_MOVE;
   shot->prev_state = shot->current_state;
@@ -74,6 +75,7 @@ Shot* create_shot(Shot_type type, Shot_creator creator, SDL_FPoint coordinates, 
   shot->hitbox.w = shot->texture.current->sprites[0].size.w;
   shot->hitbox.h = shot->texture.current->sprites[0].size.h;
   shot->next = shot->prev = NULL;
+  synchronize_hitbox_with_coordinates(&shot->hitbox, shot->coordinates);
   return shot;
 }
 
@@ -94,8 +96,9 @@ void destroy_shot(Shot* shot) {
 }
 
 void add_shot_in_shots_container(SDL_FPoint coordinates_spawn, Shot_creator creator_type, 
-                                 Shot_type shot_type, direction_movement direction, float range, float damage) {
-  Shot* new_shot = create_shot(shot_type, creator_type, coordinates_spawn, range, damage, direction);
+                                 Shot_type shot_type, direction_movement direction, 
+                                 float range, float damage, float speed) {
+  Shot* new_shot = create_shot(shot_type, creator_type, coordinates_spawn, range, damage, speed, direction);
   if (!shots.head) {
     shots.head = shots.tail = new_shot;
   } else if (shots.head == shots.tail) {
@@ -179,6 +182,7 @@ void determine_direction_homing_shot(Shot* current) {
         return;
     } break;
     case SHOT_CREATOR_ENEMY: {
+      target_coordinates = hero->coordinates;
       target_distance = the_distance_between_the_centers_of_two_rect(&hero->hitbox, &current->hitbox);
     } break;
   }
@@ -297,4 +301,8 @@ void collision_shot_with_enemies(Shot* shot) {
 void collision_shot_with_hero(Shot* shot) {
   if (shot->current_state == SHOT_STATE_DEATH || shot->creator == SHOT_CREATOR_HERO)
     return;
+  if (collision_of_two_objects(&hero->hitbox, &shot->hitbox)) {
+    shot->current_state = SHOT_STATE_DEATH;
+    hero->health -= shot->damage;
+  }
 }

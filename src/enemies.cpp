@@ -1,5 +1,6 @@
 #include "../include/enemy_slime.h"
 #include "../include/enemy_skeleton.h"
+#include "../include/enemy_shooter.h"
 
 Enemy_container *enemy_container;
 
@@ -11,7 +12,8 @@ void malloc_enemy_container() {
     for (int j = 0; j < level->amount_blocks.x; ++j) {
       Blocks block_spawn_enemy = Blocks(level->map[i][j]);
       if (block_spawn_enemy == BLOCK_SPAWN_SLIME ||
-          block_spawn_enemy == BLOCK_SPAWN_SKELETON)
+          block_spawn_enemy == BLOCK_SPAWN_SKELETON ||
+          block_spawn_enemy == BLOCK_SPAWN_SHOOTER)
         enemy_container->amount_enemies++; 
     }
   }
@@ -23,6 +25,7 @@ void init_enemies() {
   malloc_enemy_container();
   const char* slime_data_file = "../game_data/level_1/slime.txt";
   const char* skeleton_data_file = "../game_data/level_1/skeleton.txt";
+  const char* shooter_data_file = "../game_data/level_1/shooter.txt";
   // switch (level_number) {
   //   case LEVEL_1: {
   //     slime_data_file = "../game_data/level_1/slime.txt";
@@ -47,6 +50,7 @@ void init_enemies() {
     slime.base.speed = read_from_file_double(f); 
     fclose(f);
   }
+  //Данные для каждого скелета 
   Enemy_skeleton skeleton;
   if (f = fopen(skeleton_data_file, "r")) {
     skeleton.base.health = read_from_file_double(f);
@@ -55,7 +59,18 @@ void init_enemies() {
     skeleton.reaction_range_walk = read_from_file_double(f);
     fclose(f);
   }
-
+  Enemy_shooter shooter;
+  if (f = fopen(shooter_data_file, "r")) {
+    shooter.base.health = read_from_file_double(f);
+    shooter.base.damage = read_from_file_double(f);
+    shooter.base.speed = read_from_file_double(f);
+    shooter.responce_radius = read_from_file_double(f);
+    shooter.attack_radius = read_from_file_double(f);
+    shooter.attack.shot.speed = read_from_file_double(f);
+    shooter.attack.shot.damage = read_from_file_double(f);
+    shooter.attack.shot.range = read_from_file_double(f);
+    fclose(f);
+  }
   int current_index_enemy = 0;
   for (int i = 0; i < level->amount_blocks.y; ++i) {
     for (int j = 0; j < level->amount_blocks.x; ++j) {
@@ -88,6 +103,24 @@ void init_enemies() {
           new_skeleton->base.texture.current = &enemy_container->textures[new_skeleton->base.type][new_skeleton->current_state];
           enemy = &new_skeleton->base;
         } break;
+        case BLOCK_SPAWN_SHOOTER: {
+          Enemy_shooter* new_shooter = (Enemy_shooter*)malloc(sizeof(Enemy_shooter));
+          *new_shooter = shooter;
+          new_shooter->base.full_enemy = new_shooter;
+          new_shooter->prev_health = new_shooter->base.health;
+          new_shooter->base.type = ENEMY_SHOOTER;
+          new_shooter->current_state = ENEMY_SHOOTER_IDLE;
+          new_shooter->prev_state = new_shooter->current_state;
+          new_shooter->sprites_timer = 0;
+          new_shooter->base.hitbox.w = enemy_container->textures[new_shooter->base.type][new_shooter->current_state].sprites[0].size.w;
+          new_shooter->base.hitbox.h = enemy_container->textures[new_shooter->base.type][new_shooter->current_state].sprites[0].size.h;
+          new_shooter->base.texture.current = &enemy_container->textures[new_shooter->base.type][new_shooter->current_state];
+          new_shooter->was_the_shot_fired = 0;
+          new_shooter->sprite_number_for_attack = 9;
+          new_shooter->float_direction = { 0, 0 };
+          new_shooter->attack.shot.type = SHOT_TYPE_HOMING;
+          enemy = &new_shooter->base;
+        } break;
       }
       if (!enemy)
         continue;
@@ -101,7 +134,8 @@ void init_enemies() {
       enemy->current_speed_gravity = 0;
       enemy->is_standing = 0;
       enemy->texture.sprite_time_counter = 0;
-        enemy_container->enemies[current_index_enemy++] = enemy;
+      enemy->death_time = 0;
+      enemy_container->enemies[current_index_enemy++] = enemy;
     }
   }
 }
@@ -112,45 +146,41 @@ void malloc_texture_enemy(Enemy_type type, int amount_textures) {
 
 void init_textures_enemies() {
   enemy_container->textures = (Texture**)malloc(sizeof(Texture*) * ENEMY_AMOUNT);
-  //enemy slime
+  // enemy slime
   malloc_texture_enemy(ENEMY_SLIME, ENEMY_SLIME_AMOUNT_STATE); 
   init_texture(&enemy_container->textures[ENEMY_SLIME][ENEMY_SLIME_ATTACK], "../game_images/enemy/slime/attack/");
   init_texture(&enemy_container->textures[ENEMY_SLIME][ENEMY_SLIME_WALK], "../game_images/enemy/slime/walk/");
   init_texture(&enemy_container->textures[ENEMY_SLIME][ENEMY_SLIME_DEATH], "../game_images/enemy/slime/death/");
-  //enemy skeleton
+  // enemy skeleton
   malloc_texture_enemy(ENEMY_SKELETON, ENEMY_SKELETON_AMOUNT_STATE);
   init_texture(&enemy_container->textures[ENEMY_SKELETON][ENEMY_SKELETON_IDLE], "../game_images/enemy/skeleton/idle/");
   init_texture(&enemy_container->textures[ENEMY_SKELETON][ENEMY_SKELETON_WALK], "../game_images/enemy/skeleton/walk/");
   init_texture(&enemy_container->textures[ENEMY_SKELETON][ENEMY_SKELETON_ATTACK], "../game_images/enemy/skeleton/attack/");
   init_texture(&enemy_container->textures[ENEMY_SKELETON][ENEMY_SKELETON_HURT], "../game_images/enemy/skeleton/hurt/");
   init_texture(&enemy_container->textures[ENEMY_SKELETON][ENEMY_SKELETON_DEATH], "../game_images/enemy/skeleton/death/");
+  // enemy shooter
+  malloc_texture_enemy(ENEMY_SHOOTER, ENEMY_SHOOTER_AMOUNT_STATE);
+  init_texture(&enemy_container->textures[ENEMY_SHOOTER][ENEMY_SHOOTER_IDLE], "../game_images/enemy/shooter/idle/");
+  init_texture(&enemy_container->textures[ENEMY_SHOOTER][ENEMY_SHOOTER_WALK], "../game_images/enemy/shooter/walk/");
+  init_texture(&enemy_container->textures[ENEMY_SHOOTER][ENEMY_SHOOTER_SHOT_ATTACK], "../game_images/enemy/shooter/shot_attack/");
+  init_texture(&enemy_container->textures[ENEMY_SHOOTER][ENEMY_SHOOTER_HURT], "../game_images/enemy/shooter/hurt/");
+  init_texture(&enemy_container->textures[ENEMY_SHOOTER][ENEMY_SHOOTER_DEATH], "../game_images/enemy/shooter/death/");
+}
+
+void de_init_enemy_texture(int enemy_type, int enemy_amount_state) {
+  for (int state = 0; state < enemy_amount_state; ++state)
+    de_init_texture(&enemy_container->textures[enemy_type][state]);
 }
 
 void de_init_enemies() {
-  //enemy slime
-  de_init_texture(&enemy_container->textures[ENEMY_SLIME][ENEMY_SLIME_WALK]);
-  de_init_texture(&enemy_container->textures[ENEMY_SLIME][ENEMY_SLIME_ATTACK]);
-  de_init_texture(&enemy_container->textures[ENEMY_SLIME][ENEMY_SLIME_DEATH]);
-  //enemy skeleton
-  de_init_texture(&enemy_container->textures[ENEMY_SKELETON][ENEMY_SKELETON_IDLE]);
-  de_init_texture(&enemy_container->textures[ENEMY_SKELETON][ENEMY_SKELETON_WALK]);
-  de_init_texture(&enemy_container->textures[ENEMY_SKELETON][ENEMY_SKELETON_ATTACK]);
-  de_init_texture(&enemy_container->textures[ENEMY_SKELETON][ENEMY_SKELETON_HURT]);
-  de_init_texture(&enemy_container->textures[ENEMY_SKELETON][ENEMY_SKELETON_DEATH]);
-
+  de_init_enemy_texture(ENEMY_SLIME, ENEMY_SLIME_AMOUNT_STATE);
+  de_init_enemy_texture(ENEMY_SKELETON, ENEMY_SKELETON_AMOUNT_STATE);
+  de_init_enemy_texture(ENEMY_SHOOTER, ENEMY_SHOOTER_AMOUNT_STATE);
   for (int i = 0; i < ENEMY_AMOUNT; ++i)
     free(enemy_container->textures[i]);
   free(enemy_container->textures);
-
-  for (int i = 0; i < enemy_container->amount_enemies; ++i) {
-    Enemy_base* enemy = enemy_container->enemies[i];
-    switch (enemy->type) {
-      case ENEMY_SLIME: {
-        Enemy_slime* slime = (Enemy_slime*)enemy->full_enemy;
-        free(slime);
-      } break;
-    }
-  }
+  for (int i = 0; i < enemy_container->amount_enemies; ++i)
+    free(enemy_container->enemies[i]->full_enemy);
   free(enemy_container->enemies);
   free(enemy_container);
 }
@@ -165,6 +195,9 @@ void updating_enemies() {
       case ENEMY_SKELETON: {
         update_enemy_skeleton((Enemy_skeleton*)enemy->full_enemy);
       } break;
+      case ENEMY_SHOOTER: {
+        update_enemy_shooter((Enemy_shooter*)enemy->full_enemy);
+      }
     }
   }
 }
@@ -217,7 +250,10 @@ void draw_enemies() {
       } break;
       case ENEMY_SKELETON: {
         draw_enemy_skeleton((Enemy_skeleton*)enemy->full_enemy);
-      }
+      } break;
+      case ENEMY_SHOOTER: {
+        draw_enemy_shooter((Enemy_shooter*)enemy->full_enemy);
+      } break;
     }
   }
 }
@@ -230,17 +266,6 @@ void render_copy_enemy(Enemy_base* enemy, SDL_RendererFlip flip) {
     &enemy->hitbox,
     0, NULL, flip
   );
-}
-
-void set_current_sprite_enemy(Enemy_base* enemy) {
-  switch (enemy->type) {
-    case ENEMY_SLIME: {
-      set_current_sprite_enemy_slime((Enemy_slime*)enemy->full_enemy);
-    } break;
-    case ENEMY_SKELETON: {
-      set_current_sprite_enemy_skeleton((Enemy_skeleton*)enemy->full_enemy);
-    } break;
-  }
 }
 
 int collision_enemy_with_hero(Enemy_base* enemy) {

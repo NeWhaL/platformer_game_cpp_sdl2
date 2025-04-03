@@ -1,0 +1,10 @@
+1
+8
+150 hero_knight_idle_0.png
+150 hero_knight_idle_1.png
+150 hero_knight_idle_2.png
+150 hero_knight_idle_3.png
+150 hero_knight_idle_4.png
+150 hero_knight_idle_5.png
+150 hero_knight_idle_6.png
+150 hero_knight_idle_7.png

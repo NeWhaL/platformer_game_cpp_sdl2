@@ -1,0 +1,15 @@
+0
+13
+100 shooter_shot_attack_0.png
+100 shooter_shot_attack_1.png
+100 shooter_shot_attack_2.png
+100 shooter_shot_attack_3.png
+100 shooter_shot_attack_4.png
+100 shooter_shot_attack_5.png
+100 shooter_shot_attack_6.png
+100 shooter_shot_attack_7.png
+100 shooter_shot_attack_8.png
+100 shooter_shot_attack_9.png
+100 shooter_shot_attack_10.png
+100 shooter_shot_attack_11.png
+100 shooter_shot_attack_12.png

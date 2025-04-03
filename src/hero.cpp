@@ -30,6 +30,11 @@ void init_hero() {
   hero->attack.hitbox = { 0, 0, 0, 0 };
   hero->attack.max_combo_attack_timer = 1000;
   hero->attack.combo_attack_timer = hero->attack.max_combo_attack_timer;
+  hero->attack.shot.available_types_of_shots = (Shot_type*)malloc(sizeof(Shot_type) * SHOT_TYPE_AMOUNT);
+  for (int i = 0; i < SHOT_TYPE_AMOUNT; ++i)
+    hero->attack.shot.available_types_of_shots[i] = SHOT_TYPE_NONE;
+  hero->attack.shot.speed_shot = 200;
+  hero->attack.shot.range_shot = 300;
   hero->damage_timer = 1000;
   hero->max_damage_timer = hero->damage_timer;
   hero->health = 10;
@@ -40,25 +45,81 @@ void init_textures_hero() {
     printf("Не удалось получить ресурсы для Hero *hero...\n");
     de_init_application(1);
   }
-  malloc_texture_hero(HERO_IDLE);
-  init_texture(hero->textures.all[HERO_IDLE], "../game_images/hero/skin_knight/idle/");
-  malloc_texture_hero(HERO_WALK);
-  init_texture(hero->textures.all[HERO_WALK], "../game_images/hero/skin_knight/walk/");
-  malloc_texture_hero(HERO_RUN);
-  init_texture(hero->textures.all[HERO_RUN], "../game_images/hero/skin_knight/run/");
-  malloc_texture_hero(HERO_JUMP);
-  init_texture(hero->textures.all[HERO_JUMP], "../game_images/hero/skin_knight/jump/");
-  malloc_texture_hero(HERO_FALL);
-  init_texture(hero->textures.all[HERO_FALL], "../game_images/hero/skin_knight/fall/");
-  malloc_texture_hero(HERO_HURT);
-  init_texture(hero->textures.all[HERO_HURT], "../game_images/hero/skin_knight/hurt/");
-  malloc_texture_hero(HERO_DEATH);
-  init_texture(hero->textures.all[HERO_DEATH], "../game_images/hero/skin_knight/death/");
-  malloc_texture_hero(HERO_ATTACK, HERO_ATTACK_AMOUNT);
-  init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_1], "../game_images/hero/skin_knight/attack_1/");
-  init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_2], "../game_images/hero/skin_knight/attack_2/");
-  init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_3], "../game_images/hero/skin_knight/attack_3/");
+  hero->textures.skin_type = HERO_SKIN_NONE;
+  set_skin_hero(HERO_SKIN_RED_KNIGHT);
+  // malloc_texture_hero(HERO_IDLE);
+  // init_texture(hero->textures.all[HERO_IDLE], "../game_images/hero/skin_red_knight/idle/");
+  // malloc_texture_hero(HERO_WALK);
+  // init_texture(hero->textures.all[HERO_WALK], "../game_images/hero/skin_red_knight/walk/");
+  // malloc_texture_hero(HERO_RUN);
+  // init_texture(hero->textures.all[HERO_RUN], "../game_images/hero/skin_red_knight/run/");
+  // malloc_texture_hero(HERO_JUMP);
+  // init_texture(hero->textures.all[HERO_JUMP], "../game_images/hero/skin_red_knight/jump/");
+  // malloc_texture_hero(HERO_FALL);
+  // init_texture(hero->textures.all[HERO_FALL], "../game_images/hero/skin_red_knight/fall/");
+  // malloc_texture_hero(HERO_HURT);
+  // init_texture(hero->textures.all[HERO_HURT], "../game_images/hero/skin_red_knight/hurt/");
+  // malloc_texture_hero(HERO_DEATH);
+  // init_texture(hero->textures.all[HERO_DEATH], "../game_images/hero/skin_red_knight/death/");
+  // malloc_texture_hero(HERO_ATTACK, HERO_ATTACK_AMOUNT);
+  // init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_1], "../game_images/hero/skin_red_knight/attack_1/");
+  // init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_2], "../game_images/hero/skin_red_knight/attack_2/");
+  // init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_3], "../game_images/hero/skin_red_knight/attack_3/");
+  // hero->textures.sprite_time_counter = 0;
+}
+
+void set_skin_hero(Hero_skin_type skin_type) {
+  if (hero->textures.skin_type == skin_type)
+    return;
+  switch (skin_type) {
+    case HERO_SKIN_RED_KNIGHT: {
+      if (hero->textures.skin_type != HERO_SKIN_NONE)
+        de_init_textures_hero();
+      malloc_texture_hero(HERO_IDLE);
+      init_texture(hero->textures.all[HERO_IDLE], "../game_images/hero/skin_red_knight/idle/");
+      malloc_texture_hero(HERO_WALK);
+      init_texture(hero->textures.all[HERO_WALK], "../game_images/hero/skin_red_knight/walk/");
+      malloc_texture_hero(HERO_RUN);
+      init_texture(hero->textures.all[HERO_RUN], "../game_images/hero/skin_red_knight/run/");
+      malloc_texture_hero(HERO_JUMP);
+      init_texture(hero->textures.all[HERO_JUMP], "../game_images/hero/skin_red_knight/jump/");
+      malloc_texture_hero(HERO_FALL);
+      init_texture(hero->textures.all[HERO_FALL], "../game_images/hero/skin_red_knight/fall/");
+      malloc_texture_hero(HERO_HURT);
+      init_texture(hero->textures.all[HERO_HURT], "../game_images/hero/skin_red_knight/hurt/");
+      malloc_texture_hero(HERO_DEATH);
+      init_texture(hero->textures.all[HERO_DEATH], "../game_images/hero/skin_red_knight/death/");
+      malloc_texture_hero(HERO_ATTACK, HERO_ATTACK_AMOUNT);
+      init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_1], "../game_images/hero/skin_red_knight/attack_1/");
+      init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_2], "../game_images/hero/skin_red_knight/attack_2/");
+      init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_3], "../game_images/hero/skin_red_knight/attack_3/");
+    } break;
+    case HERO_SKIN_GREEN_KNIGHT: {
+      if (hero->textures.skin_type != HERO_SKIN_NONE)
+        de_init_textures_hero();
+      malloc_texture_hero(HERO_IDLE);
+      init_texture(hero->textures.all[HERO_IDLE], "../game_images/hero/skin_green_knight/idle/");
+      malloc_texture_hero(HERO_WALK);
+      init_texture(hero->textures.all[HERO_WALK], "../game_images/hero/skin_green_knight/walk/");
+      malloc_texture_hero(HERO_RUN);
+      init_texture(hero->textures.all[HERO_RUN], "../game_images/hero/skin_green_knight/run/");
+      malloc_texture_hero(HERO_JUMP);
+      init_texture(hero->textures.all[HERO_JUMP], "../game_images/hero/skin_green_knight/jump/");
+      malloc_texture_hero(HERO_FALL);
+      init_texture(hero->textures.all[HERO_FALL], "../game_images/hero/skin_green_knight/fall/");
+      malloc_texture_hero(HERO_HURT);
+      init_texture(hero->textures.all[HERO_HURT], "../game_images/hero/skin_green_knight/hurt/");
+      malloc_texture_hero(HERO_DEATH);
+      init_texture(hero->textures.all[HERO_DEATH], "../game_images/hero/skin_green_knight/death/");
+      malloc_texture_hero(HERO_ATTACK, HERO_ATTACK_AMOUNT);
+      init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_1], "../game_images/hero/skin_green_knight/attack_1/");
+      init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_2], "../game_images/hero/skin_green_knight/attack_2/");
+      init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_3], "../game_images/hero/skin_green_knight/attack_3/");
+    } break;
+  } 
+  set_current_texture_hero(hero->textures.all[hero->state]);
   hero->textures.sprite_time_counter = 0;
+  hero->textures.skin_type = skin_type;
 }
 
 void malloc_texture_hero(Hero_state state, int amount_textures) {
@@ -81,7 +142,7 @@ void load_hero(const char* load_file) {
 
 }
 
-void de_init_hero() {
+void de_init_textures_hero() {
   de_init_texture(hero->textures.all[HERO_IDLE]);
   de_init_texture(hero->textures.all[HERO_WALK]);
   de_init_texture(hero->textures.all[HERO_RUN]);
@@ -94,6 +155,11 @@ void de_init_hero() {
   de_init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_3]);
   for (int i = 0; i < HERO_AMOUNT_STATE; ++i)
     free(hero->textures.all[i]);
+}
+
+void de_init_hero() {
+  de_init_textures_hero();
+  free(hero->textures.all);
   free(hero);
 }
 
@@ -326,18 +392,16 @@ void attack_hero() {
   } else if (hero->state != HERO_IDLE && hero->state != HERO_WALK && hero->state != HERO_RUN)
     return;
   if (keyboard[SDL_SCANCODE_H] && keyboard[SDL_SCANCODE_J]) { //обычный выстрел
-    if (hero->attack.combo_attack_timer >= hero->attack.max_combo_attack_timer) {
-      hero->attack.combo_attack_timer = 0;
-      add_shot_in_shots_container(hero->coordinates, SHOT_CREATOR_HERO, SHOT_TYPE_ORDINARY, 
-                                  hero->direction, 400, hero->attack.pure_damage);
-    }
+    if (!is_it_possible_to_create_a_shot_hero(SHOT_TYPE_ORDINARY))
+      return;
+    if (hero->attack.combo_attack_timer >= hero->attack.max_combo_attack_timer)
+      add_shot_in_shots_container_hero(SHOT_TYPE_ORDINARY);
     return;
   } else if (keyboard[SDL_SCANCODE_H] && keyboard[SDL_SCANCODE_K]) {//самонаводящийся выстрел
-    if (hero->attack.combo_attack_timer >= hero->attack.max_combo_attack_timer) {
-      hero->attack.combo_attack_timer = 0;
-      add_shot_in_shots_container(hero->coordinates, SHOT_CREATOR_HERO, SHOT_TYPE_HOMING, 
-                                  hero->direction, 400, hero->attack.pure_damage);
-    }
+    if (!is_it_possible_to_create_a_shot_hero(SHOT_TYPE_HOMING))
+      return;
+    if (hero->attack.combo_attack_timer >= hero->attack.max_combo_attack_timer)
+      add_shot_in_shots_container_hero(SHOT_TYPE_HOMING);
     return;
   }
 
@@ -354,6 +418,10 @@ void attack_hero() {
     hero->attack.type = HERO_ATTACK_BASE_3;
     hero->attack.cause_damage = 1;
   }
+}
+
+int is_it_possible_to_create_a_shot_hero(Shot_type shot_type) {
+  return hero->attack.shot.available_types_of_shots[shot_type] != SHOT_TYPE_NONE;
 }
 
 void attack_combo_logic_hero() {
@@ -436,4 +504,17 @@ void set_current_sprite_hero() {
   );
   if (prev_texture != hero->textures.current)
     prev_texture = hero->textures.current;
+}
+
+void add_shot_in_shots_container_hero(Shot_type shot_type) {
+  hero->attack.combo_attack_timer = 0;
+  add_shot_in_shots_container(
+    hero->coordinates, 
+    SHOT_CREATOR_HERO, 
+    shot_type, 
+    hero->direction,
+    hero->attack.shot.range_shot, 
+    hero->attack.pure_damage, 
+    hero->attack.shot.speed_shot
+  );
 }

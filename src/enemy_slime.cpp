@@ -7,7 +7,7 @@ void update_enemy_slime(Enemy_slime* enemy) {
   slime_attack_on_the_hero(enemy);
   determine_current_state_enemy_slime(enemy);
   determine_current_texture_enemy_slime(enemy);
-  set_current_sprite_enemy(&enemy->base);
+  set_current_sprite_enemy_slime(enemy);
   synchronize_hitbox_with_coordinates(&enemy->base.hitbox, enemy->base.coordinates);
   death_enemy_slime(enemy);
 }
@@ -84,10 +84,9 @@ void determine_current_texture_enemy_slime(Enemy_slime* enemy) {
 void death_enemy_slime(Enemy_slime* enemy) {
   if (enemy->base.health <= 0)
     enemy->current_state = ENEMY_SLIME_DEATH;
-  static double time = 0;
   if (enemy->current_state == ENEMY_SLIME_DEATH) {
-    time += dt;
-    if (time >= time_for_one_texture_iteration(enemy->base.texture.current)) {
+    enemy->base.death_time += dt;
+    if (enemy->base.death_time >= time_for_one_texture_iteration(enemy->base.texture.current)) {
       enemy->base.type = ENEMY_INACTIVE;
     }
   }

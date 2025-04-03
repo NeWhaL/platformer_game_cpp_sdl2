@@ -6,12 +6,14 @@
 #include "texture.h"
 #include "level.h"
 #include "other_function.h"
+#include "enemy_base.h"
 
-enum Shot_type {
+typedef enum {
+  SHOT_TYPE_NONE = -1,
   SHOT_TYPE_ORDINARY,
   SHOT_TYPE_HOMING,
   SHOT_TYPE_AMOUNT
-};
+} Shot_type;
 
 enum Shot_creator {
   SHOT_CREATOR_HERO,
@@ -58,10 +60,10 @@ void init_shot_container();
 void init_shot_textures();
 void de_init_shot_textures();
 void de_init_shot_container();
-Shot* create_shot(Shot_type type, Shot_creator creator, SDL_FPoint coordinates, float range, float damage, direction_movement direction = DIRECTION_NONE);
+Shot* create_shot(Shot_type type, Shot_creator creator, SDL_FPoint coordinates, float range, float damage, float speed, direction_movement direction = DIRECTION_NONE);
 void destroy_shot(Shot* shot);
 void add_shot_in_shots_container(SDL_FPoint coordinates_spawn, Shot_creator creator_type, 
-                                 Shot_type shot_type, direction_movement direction, float range, float damage);
+                                 Shot_type shot_type, direction_movement direction, float range, float damage, float speed);
 void update_shots();
 void update_range_shot(Shot* shot);
 void set_current_sprite_shot(Shot* shot);

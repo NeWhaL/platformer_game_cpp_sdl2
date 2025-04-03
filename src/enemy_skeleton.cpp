@@ -7,7 +7,7 @@ void update_enemy_skeleton(Enemy_skeleton* enemy) {
   determine_current_state_enemy_skeleton(enemy);
   skeleton_attack_on_the_hero(enemy);
   determine_current_texture_enemy_skeleton(enemy);
-  set_current_sprite_enemy(&enemy->base); 
+  set_current_sprite_enemy_skeleton(enemy);
   synchronize_hitbox_with_coordinates(&enemy->base.hitbox, enemy->base.coordinates);
   death_enemy_skeleton(enemy);
 }
@@ -29,10 +29,10 @@ void skeleton_attack_on_the_hero(Enemy_skeleton* enemy) {
     enemy->sprites_timer = 0;
     enemy->current_state = ENEMY_SKELETON_IDLE;
   }
-  if (hero->state == HERO_DEATH || !collision_enemy_skeleton_with_hero(enemy))
+  if ((hero->state == HERO_DEATH || !collision_enemy_skeleton_with_hero(enemy)) ||
+       hero->state == HERO_ATTACK && is_the_dealing_damage_now_hero()) {
     return;
-  if (hero->state == HERO_ATTACK && is_the_dealing_damage_now_hero())
-    return;
+  }
   if (hero->damage_timer >= hero->max_damage_timer) {
     hero->health -= enemy->base.damage;
     if (hero->health > 0)
@@ -74,10 +74,9 @@ void determine_current_texture_enemy_skeleton(Enemy_skeleton* enemy) {
 void death_enemy_skeleton(Enemy_skeleton* enemy) {
   if (enemy->base.health <= 0)
     enemy->current_state = ENEMY_SKELETON_DEATH;
-  static double time = 0;
   if (enemy->current_state == ENEMY_SKELETON_DEATH) {
-    time += dt;
-    if (time >= time_for_one_texture_iteration(enemy->base.texture.current)) {
+    enemy->base.death_time += dt;
+    if (enemy->base.death_time >= time_for_one_texture_iteration(enemy->base.texture.current)) {
       enemy->base.type = ENEMY_INACTIVE;
     }
   }

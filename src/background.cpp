@@ -16,7 +16,7 @@ Background_type backgrounds_type[amount_backgrounds] = {
 void init_backgrounds() {
   if (!(backgrounds = (Background*)malloc(sizeof(Background) * amount_backgrounds))) {
     printf("Не удалось выделить ресурсы под backgrounds...\n");
-    de_init_application(1);
+    // de_init_application(1);
   }
   char final_path[100];
   for (int i = 0; i < amount_backgrounds; ++i) {

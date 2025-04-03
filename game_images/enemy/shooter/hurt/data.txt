@@ -1,0 +1,7 @@
+0
+5
+100 shooter_hurt_0.png
+100 shooter_hurt_1.png
+100 shooter_hurt_2.png
+100 shooter_hurt_3.png
+100 shooter_hurt_4.png

@@ -20,6 +20,7 @@ extern const int amount_buttons_in_main_menu;
 extern const int amount_buttons_in_load_menu;
 extern const int amount_buttons_in_stop_menu;
 extern const int amount_buttons_in_save_menu;
+extern const int amount_buttons_in_change_skin_menu;
 
 enum button_type {
   BUTTON_START,
@@ -32,10 +33,12 @@ enum button_type {
   BUTTON_UPGRADE,
   BUTTON_CHANGE_SKIN,
   BUTTON_MAIN_MENU,
-  BUTTON_STOP_GAME_MENU
+  BUTTON_STOP_GAME_MENU,
+  BUTTON_SKIN_RED_KNIGHT,
+  BUTTON_SKIN_GREEN_KNIGHT,
 };
 
-extern struct button {
+extern struct Button {
   SDL_Color standart_color_button;
   SDL_Color active_color_button;
   SDL_Color color_button;
@@ -46,20 +49,22 @@ extern struct button {
 } *buttons_main_menu, 
   *buttons_load_menu, 
   *buttons_stop_menu,
-  *buttons_save_menu;
+  *buttons_save_menu,
+  *buttons_change_skin_menu;
 
 void init_main_menu();
 void init_game_menu();
 
-void buttons_malloc(button** buttons, int size);
-void create_button(button* btn, button_type type, const char* text, int x, int y,
+void buttons_malloc(Button** buttons, int size);
+void create_button(Button* btn, button_type type, const char* text, int x, int y,
                    int w = button_width, int h = button_height, 
                    SDL_Color std_color = standart_color_button,
                    SDL_Color cur_color = current_color_button);
-void create_buttons(button* buttons, button_type* types, const char** names, const int amount_buttons);
-int button_collision(button* btn);
+void create_buttons(Button* buttons, button_type* types, const char** names, const int amount_buttons);
+int button_collision(Button* btn);
 int button_collision_rect(SDL_Rect btn_rect);
-void draw_button(button* btn);
+void draw_button(Button* btn);
+void draw_buttons(Button* buttons, int amount_button);
 void draw_menu(void draw_buttons_menu(), SDL_Color background_color = standart_background_color);
 
 void main_menu();

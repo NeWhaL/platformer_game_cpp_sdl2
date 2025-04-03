@@ -1,9 +1,10 @@
 #include "../include/menu.h"
 
-button* buttons_main_menu;
-button* buttons_load_menu;
-button* buttons_stop_menu;
-button* buttons_save_menu;
+Button* buttons_main_menu;
+Button* buttons_load_menu;
+Button* buttons_stop_menu;
+Button* buttons_save_menu;
+Button* buttons_change_skin_menu;
 SDL_Color standart_background_color =  {180, 180, 240, 255};
 SDL_Color current_color_button = {140, 140, 240, 255};
 SDL_Color standart_color_button = {150, 150, 220, 255};
@@ -17,6 +18,7 @@ const int amount_buttons_in_main_menu = 3;
 const int amount_buttons_in_load_menu = 4;
 const int amount_buttons_in_stop_menu = 5;
 const int amount_buttons_in_save_menu = 4;
+const int amount_buttons_in_change_skin_menu = 3;
 
 void init_main_menu() {
   create_main_menu_buttons();
@@ -27,7 +29,7 @@ void init_game_menu() {
 }
 
 
-void create_button(button* btn, button_type type, const char* text, int x, int y, int w, int h,
+void create_button(Button* btn, button_type type, const char* text, int x, int y, int w, int h,
                    SDL_Color std_color, SDL_Color cur_color) {
   btn->type = type;
   btn->standart_color_button = standart_color_button;
@@ -37,7 +39,7 @@ void create_button(button* btn, button_type type, const char* text, int x, int y
   btn->font = create_font(font_path, text, standart_color_text, &btn->size_text, btn->size_button);
 }
 
-int button_collision(button* btn) {
+int button_collision(Button* btn) {
   SDL_Rect btn_size = btn->size_button;
   int collision = 0;
   if (collision = button_collision_rect(btn_size)) {
@@ -54,7 +56,12 @@ int button_collision_rect(SDL_Rect btn_rect) {
          mouse_position.y <= btn_rect.y + btn_rect.h;
 }
 
-void draw_button(button* btn) {
+void draw_buttons(Button* buttons, int amount_button) {
+  for (int i = 0; i < amount_button; ++i)
+    draw_button(&buttons[i]);
+}
+
+void draw_button(Button* btn) {
   SDL_SetRenderDrawColor(renderer, btn->color_button.r, btn->color_button.g, btn->color_button.b, btn->color_button.a);
   SDL_RenderFillRect(renderer, &btn->size_button);
   SDL_RenderCopy(renderer, btn->font, NULL, &btn->size_text);
@@ -68,11 +75,11 @@ void draw_menu(void draw_buttons_function(), SDL_Color background_color) {
   SDL_RenderPresent(renderer);
 }
 
-void buttons_malloc(button** buttons, int size) {
-  *buttons = (button*)malloc(sizeof(button) * size);
+void buttons_malloc(Button** buttons, int size) {
+  *buttons = (Button*)malloc(sizeof(Button) * size);
 }
 
-void create_buttons(button* buttons, button_type* types, const char** names, const int amount_buttons) {
+void create_buttons(Button* buttons, button_type* types, const char** names, const int amount_buttons) {
   int i_up_margin = up_margin;
   for (int i = 0; i < amount_buttons; ++i) {
     create_button(
@@ -211,16 +218,22 @@ void game_menu() {
 }
 
 void create_game_menu_buttons() {
+  // stop menu
   buttons_malloc(&buttons_stop_menu, amount_buttons_in_stop_menu);
   const char* button_names_stop_menu[amount_buttons_in_stop_menu] = { "continue", "save", "upgrade", "change skin", "main menu"};
   button_type button_types_stop_menu[amount_buttons_in_stop_menu] = { BUTTON_CONTINUE, BUTTON_SAVE_MENU, 
     BUTTON_UPGRADE, BUTTON_CHANGE_SKIN, BUTTON_MAIN_MENU };
   create_buttons(buttons_stop_menu, button_types_stop_menu, button_names_stop_menu, amount_buttons_in_stop_menu);
-
+  // save menu
   buttons_malloc(&buttons_save_menu, amount_buttons_in_save_menu);
   const char* button_names_save_menu[amount_buttons_in_save_menu] = { "save 1", "save 2", "save 3", "back"};
   button_type button_types_save_menu[amount_buttons_in_save_menu] = { BUTTON_SAVE, BUTTON_SAVE, BUTTON_SAVE, BUTTON_STOP_GAME_MENU };
   create_buttons(buttons_save_menu, button_types_save_menu, button_names_save_menu, amount_buttons_in_save_menu);
+  // change skin menu
+  buttons_malloc(&buttons_change_skin_menu, amount_buttons_in_change_skin_menu);
+  const char* button_names_change_skin_menu[amount_buttons_in_change_skin_menu] = { "red knight", "green knight", "back"};
+  button_type button_types_change_skin_menu[amount_buttons_in_change_skin_menu] = { BUTTON_SKIN_RED_KNIGHT, BUTTON_SKIN_GREEN_KNIGHT, BUTTON_STOP_GAME_MENU };
+  create_buttons(buttons_change_skin_menu, button_types_change_skin_menu, button_names_change_skin_menu, amount_buttons_in_change_skin_menu);
 }
 
 void updating_game_menu_events(int* is_mouse_button_left) {
@@ -310,24 +323,56 @@ void logic_game_menu(int is_mouse_button_left) {
         } 
       }
     } break;
+    case CHANGE_SKIN_MENU: {
+      for (int i = 0; i < amount_buttons_in_change_skin_menu; ++i) {
+        if (!button_collision(&buttons_change_skin_menu[i]))
+          continue;
+        switch (buttons_change_skin_menu[i].type) {
+          case BUTTON_SKIN_RED_KNIGHT: {
+            if (is_mouse_button_left) {
+              set_skin_hero(HERO_SKIN_RED_KNIGHT);
+              is_running = STOP_GAME_MENU;
+              return;
+            }
+          } break;
+          case BUTTON_SKIN_GREEN_KNIGHT: {
+            if (is_mouse_button_left) {
+              set_skin_hero(HERO_SKIN_GREEN_KNIGHT);
+              is_running = STOP_GAME_MENU;
+              return;
+            }
+          } break;
+          case BUTTON_STOP_GAME_MENU: {
+            if (is_mouse_button_left) {
+              is_running = STOP_GAME_MENU;
+              return;
+            }
+          } break;
+        }
+      }
+    } break;
   }
 }
 
 void draw_game_menu_buttons() {
-  if (is_running == STOP_GAME_MENU) {
-    for (int i = 0; i < amount_buttons_in_stop_menu; ++i)
-      draw_button(&buttons_stop_menu[i]);
-  } else if (is_running == SAVE_MENU) {
-    for (int i = 0; i < amount_buttons_in_save_menu; ++i)
-      draw_button(&buttons_save_menu[i]);
-  } else if (is_running == UPGRADE_MENU) {
+  switch (is_running) {
+    case STOP_GAME_MENU: {
+      draw_buttons(buttons_stop_menu, amount_buttons_in_stop_menu); 
+    } break;
+    case SAVE_MENU: {
+      draw_buttons(buttons_save_menu, amount_buttons_in_save_menu);
+    } break;
+    case UPGRADE_MENU: {
 
-  } else if (is_running == CHANGE_SKIN_MENU) {
-
+    } break;
+    case CHANGE_SKIN_MENU: {
+      draw_buttons(buttons_change_skin_menu, amount_buttons_in_change_skin_menu);
+    } break;
   }
 }
 
 void de_init_game_menu() {
   free(buttons_save_menu);
+  free(buttons_change_skin_menu);
   free(buttons_stop_menu);
 }

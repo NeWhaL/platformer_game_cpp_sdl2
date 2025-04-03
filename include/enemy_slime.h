@@ -2,6 +2,7 @@
 #define ENEMY_SLIME_H
 
 #include "enemy_base.h"
+#include "hero.h"
 
 enum Enemy_slime_state {
   ENEMY_SLIME_WALK,

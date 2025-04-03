@@ -1,13 +1,11 @@
 #ifndef HERO_H
 #define HERO_H
 
-#include "sdl.h"
-#include "global_var.h"
+#include "init_application.h"
 #include "texture.h"
 #include "level.h"
 #include <math.h>
 #include "direction.h"
-#include "application.h"
 #include "enemy_base.h"
 #include "shot.h"
 
@@ -22,6 +20,12 @@ enum Hero_state {
   HERO_HURT, //получение урона
   HERO_DEATH, //смерть
   HERO_AMOUNT_STATE //количество состояний, в которых может быть герой
+};
+
+enum Hero_skin_type {
+  HERO_SKIN_NONE,
+  HERO_SKIN_RED_KNIGHT,
+  HERO_SKIN_GREEN_KNIGHT,
 };
 
 enum Attack_type {
@@ -57,6 +61,7 @@ extern struct Hero {
     Texture* current;
     int current_number_sprite;
     double sprite_time_counter;
+    Hero_skin_type skin_type;
   } textures;
   struct {
     float pure_damage;
@@ -65,12 +70,18 @@ extern struct Hero {
     SDL_Rect hitbox;
     double max_combo_attack_timer;
     double combo_attack_timer;
+    struct {
+      float speed_shot;
+      float range_shot;
+      Shot_type* available_types_of_shots;
+    } shot;
   } attack;
   Hero_state state;
 } *hero;
 
 void init_hero();
 void init_textures_hero();
+void de_init_textures_hero();
 void malloc_texture_hero(Hero_state state, int amount_textures = 1);
 void init_attack_type_info_hero();
 void load_hero(const char* load_file);
@@ -95,5 +106,8 @@ void attack_combo_logic_hero();
 void set_current_texture_hero(Texture* texture);
 void determine_current_texture_hero();
 void reaction_hero_to_hurt();
+void set_skin_hero(Hero_skin_type skin_type);
+void add_shot_in_shots_container_hero(Shot_type shot_type);
+int is_it_possible_to_create_a_shot_hero(Shot_type shot_type);
 
 #endif

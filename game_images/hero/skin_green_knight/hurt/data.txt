@@ -1,0 +1,5 @@
+0
+3
+100 hero_knight_hurt_0.png
+100 hero_knight_hurt_1.png
+100 hero_knight_hurt_2.png
