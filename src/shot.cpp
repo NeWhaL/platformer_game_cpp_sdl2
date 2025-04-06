@@ -277,6 +277,8 @@ void collision_shot_with_platforms(Shot* shot) {
   if (shot->current_state == SHOT_STATE_DEATH)
     return;
   for (int i = 0; i < amount_platforms; ++i) {
+    if (platforms[i].type == PLATFORM_INACTIVE)
+      continue;
     if (collision_of_two_objects(&shot->hitbox, &platforms[i].hitbox)) {
       shot->current_state = SHOT_STATE_DEATH;
       return;
