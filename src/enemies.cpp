@@ -2,10 +2,14 @@
 #include "../include/enemy_skeleton.h"
 #include "../include/enemy_shooter.h"
 
-Enemy_container *enemy_container;
+Enemy_container *enemy_container = NULL;
 
 void malloc_enemy_container() {
   enemy_container = (Enemy_container*)malloc(sizeof(Enemy_container));
+  malloc_enemies();
+}
+
+void malloc_enemies() {
   enemy_container->amount_enemies = 0;
   enemy_container->enemies = NULL;
   for (int i = 0; i < level->amount_blocks.y; ++i) {
@@ -20,26 +24,34 @@ void malloc_enemy_container() {
   enemy_container->enemies = (Enemy_base**)malloc(sizeof(Enemy_base*) * enemy_container->amount_enemies);
 }
 
-// void init_enemies(Level_number level_number) {
-void init_enemies() {
-  malloc_enemy_container();
-  const char* slime_data_file = "../game_data/level_1/slime.txt";
-  const char* skeleton_data_file = "../game_data/level_1/skeleton.txt";
-  const char* shooter_data_file = "../game_data/level_1/shooter.txt";
-  // switch (level_number) {
-  //   case LEVEL_1: {
-  //     slime_data_file = "../game_data/level_1/slime.txt";
-  //   } break;
-  //   case LEVEL_2: {
-  //     slime_data_file = "../game_data/level_2/slime.txt";
-  //   } break;
-  //   case LEVEL_3: {
-  //     slime_data_file = "../game_data/level_3/slime.txt";
-  //   } break;
-  // }
-
-  //здесь проинициализировать все текстуры противников
-  init_textures_enemies();
+void init_enemies(Level_number level_number) {
+  if (!enemy_container) {
+    malloc_enemy_container();
+    init_textures_enemies();
+  } else {
+    de_init_enemies();
+    malloc_enemies();
+  }
+  const char* slime_data_file;
+  const char* skeleton_data_file;
+  const char* shooter_data_file;
+  switch (level_number) {
+    case LEVEL_1: {
+      slime_data_file = "../game_data/level_1/slime.txt";
+      skeleton_data_file = "../game_data/level_1/skeleton.txt";
+      shooter_data_file = "../game_data/level_1/shooter.txt";
+    } break;
+    case LEVEL_2: {
+      slime_data_file = "../game_data/level_2/slime.txt";
+      skeleton_data_file = "../game_data/level_2/skeleton.txt";
+      shooter_data_file = "../game_data/level_2/shooter.txt";
+    } break;
+    case LEVEL_3: {
+      slime_data_file = "../game_data/level_3/slime.txt";
+      skeleton_data_file = "../game_data/level_3/skeleton.txt";
+      shooter_data_file = "../game_data/level_3/shooter.txt";
+    } break;
+  }
 
   //Данные для каждого слайма
   Enemy_slime slime;
@@ -172,17 +184,21 @@ void de_init_enemy_texture(int enemy_type, int enemy_amount_state) {
     de_init_texture(&enemy_container->textures[enemy_type][state]);
 }
 
-void de_init_enemies() {
+void de_init_enemy_container() {
   de_init_enemy_texture(ENEMY_SLIME, ENEMY_SLIME_AMOUNT_STATE);
   de_init_enemy_texture(ENEMY_SKELETON, ENEMY_SKELETON_AMOUNT_STATE);
   de_init_enemy_texture(ENEMY_SHOOTER, ENEMY_SHOOTER_AMOUNT_STATE);
   for (int i = 0; i < ENEMY_AMOUNT; ++i)
     free(enemy_container->textures[i]);
   free(enemy_container->textures);
+  de_init_enemies(); 
+  free(enemy_container);
+}
+
+void de_init_enemies() {
   for (int i = 0; i < enemy_container->amount_enemies; ++i)
     free(enemy_container->enemies[i]->full_enemy);
   free(enemy_container->enemies);
-  free(enemy_container);
 }
 
 void updating_enemies() {

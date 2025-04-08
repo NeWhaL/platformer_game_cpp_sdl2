@@ -2,29 +2,38 @@
 
 const char* filename_maps[] = {
   "../maps/map_1.txt",
-  "map_2.txt",
-  "map_3.txt"
+  "../maps/map_2.txt",
+  "../maps/map_3.txt"
+};
+
+const char* filename_blocks[] = {
+  "../game_images/blocks/blocks_map_1.png",
+  "../game_images/blocks/blocks_map_2.png",
+  "../game_images/blocks/blocks_map_3.png",
 };
 
 Platform* platforms = NULL;
 int amount_platforms = 0;
 
 const int amount_levels = 3;
-Level *level;
+Level *level = NULL;
 
 void init_level(Level_number number) {
-  level = malloc_level();
-  level->number = number; 
+  if (!level) {
+    level = malloc_level();
+    level->texture_size_edge_block = 16;
+    level->real_size_edge_block = level->texture_size_edge_block * 2;
+  } else {
+    SDL_DestroyTexture(level->blocks.sprite);
+  }
+  level->number = number;
+  level->blocks.sprite = load_texture_from_file(filename_blocks[level->number], &level->blocks.size);
+  SDL_SetTextureBlendMode(level->blocks.sprite, SDL_BLENDMODE_BLEND);
   FILE* f = fopen(filename_maps[number], "r");
   if (f)
     for (int i = 0; fgets(level->map[i], level->amount_blocks.x, f) != NULL; ++i)
       fgetc(f);
   fclose(f);
-  level->texture_size_edge_block = 16;
-  level->real_size_edge_block = level->texture_size_edge_block * 2;
-  level->blocks.sprite = load_texture_from_file("../game_images/blocks/blocks_map_1.png", 
-    &level->blocks.size);
-  SDL_SetTextureBlendMode(level->blocks.sprite, SDL_BLENDMODE_BLEND);
   init_platforms();
 }
 
@@ -135,7 +144,12 @@ int is_it_a_block(Blocks block_type) {
 
 void init_platforms() {
   amount_platforms = 100;
-  platforms = (Platform*)malloc(sizeof(Platform) * amount_platforms);
+  if (!platforms) {
+    platforms = (Platform*)malloc(sizeof(Platform) * amount_platforms);
+  } else {
+    de_init_platforms();
+    platforms = (Platform*)malloc(sizeof(Platform) * amount_platforms);
+  }
   amount_platforms = 0;
   int is_prev_platform = 0;
   Platform* platform = &platforms[amount_platforms];

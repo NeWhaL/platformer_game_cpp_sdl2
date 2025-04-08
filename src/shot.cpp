@@ -4,10 +4,14 @@
 Shot_container shots;
 
 void init_shot_container() {
-  shots.head = NULL;
-  shots.tail = shots.head;
-  shots.textures = NULL;
-  init_shot_textures();
+  if (!shots.head) {
+    shots.head = NULL;
+    shots.tail = shots.head;
+    shots.textures = NULL;
+    init_shot_textures();
+  } else {
+    de_init_shots();
+  }
 }
 
 void init_shot_textures() {
@@ -16,12 +20,16 @@ void init_shot_textures() {
   init_texture(&shots.textures[SHOT_TYPE_ORDINARY][SHOT_STATE_MOVE], "../game_images/shots/ordinary_shot/fly/");
   init_texture(&shots.textures[SHOT_TYPE_ORDINARY][SHOT_STATE_DEATH], "../game_images/shots/ordinary_shot/death/");
   shots.textures[SHOT_TYPE_HOMING] = (Texture*)malloc(sizeof(Texture) * SHOT_TYPE_AMOUNT);
-  init_texture(&shots.textures[SHOT_TYPE_HOMING][SHOT_STATE_MOVE], "../game_images/shots/ordinary_shot/fly/");
-  init_texture(&shots.textures[SHOT_TYPE_HOMING][SHOT_STATE_DEATH], "../game_images/shots/ordinary_shot/death/");
+  init_texture(&shots.textures[SHOT_TYPE_HOMING][SHOT_STATE_MOVE], "../game_images/shots/homing_shot/fly/");
+  init_texture(&shots.textures[SHOT_TYPE_HOMING][SHOT_STATE_DEATH], "../game_images/shots/homing_shot/death/");
 }
 
 void de_init_shot_container() {
   de_init_shot_textures();
+  de_init_shots(); 
+}
+
+void de_init_shots() {
   for (Shot* shot_delete = shots.head; shot_delete != NULL; shot_delete = shots.head)
     destroy_shot(shot_delete);
   shots.head = shots.tail = NULL;
@@ -60,7 +68,7 @@ Shot* create_shot(Shot_type type, Shot_creator creator, SDL_FPoint coordinates, 
       }
     };
   }
-  shot->speed = 250;
+  shot->speed = speed;
   shot->texture.current_number_sprite = 0;
   shot->texture.sprite_time_counter = 0;
   shot->death_time = 0;
@@ -221,20 +229,44 @@ void set_current_sprite_shot(Shot* shot) {
   switch (shot->type) {
     case SHOT_TYPE_ORDINARY: {
       current_direction = shot->direction.ordinary;
+      set_current_sprite(
+        shot->texture.current,
+        &shot->texture.current_number_sprite,
+        &shot->hitbox,
+        &shot->coordinates,
+        current_direction,
+        &shot->texture.sprite_time_counter,
+        shot->current_state != shot->prev_state
+      );
     } break;
     case SHOT_TYPE_HOMING: {
       current_direction = DIRECTION_LEFT;
+      int current_number_sprite_tmp = shot->texture.current_number_sprite;
+      set_current_sprite(
+        shot->texture.current,
+        &shot->texture.current_number_sprite,
+        &shot->hitbox,
+        &shot->coordinates,
+        current_direction,
+        &shot->texture.sprite_time_counter,
+        shot->current_state != shot->prev_state
+      );
+      if ((current_number_sprite_tmp + 1 == shot->texture.current->amount_sprite) &&
+          shot->texture.current_number_sprite == 0) {
+        shot->texture.current_number_sprite = 9;
+        set_current_sprite(
+          shot->texture.current,
+          &shot->texture.current_number_sprite,
+          &shot->hitbox,
+          &shot->coordinates,
+          current_direction,
+          &shot->texture.sprite_time_counter,
+          shot->current_state != shot->prev_state
+        );
+      }
     } break;
   }
-  set_current_sprite(
-    shot->texture.current,
-    &shot->texture.current_number_sprite,
-    &shot->hitbox,
-    &shot->coordinates,
-    current_direction,
-    &shot->texture.sprite_time_counter,
-    shot->current_state != shot->prev_state
-  );
+  
   if (shot->current_state != shot->prev_state)
     shot->prev_state = shot->current_state;
 }

@@ -1,7 +1,7 @@
 1
 5
-150 ordinary_shot_0.png
-150 ordinary_shot_1.png
-150 ordinary_shot_2.png
-150 ordinary_shot_3.png
-150 ordinary_shot_4.png
+150 ordinary_shot_fly_0.png
+150 ordinary_shot_fly_1.png
+150 ordinary_shot_fly_2.png
+150 ordinary_shot_fly_3.png
+150 ordinary_shot_fly_4.png

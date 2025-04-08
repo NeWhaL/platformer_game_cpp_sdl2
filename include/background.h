@@ -5,7 +5,7 @@
 #include "global_var.h"
 #include "other_function.h"
 #include "texture.h"
-// #include "application.h"
+#include "init_application.h"
 #include <string.h>
 
 enum Background_type {

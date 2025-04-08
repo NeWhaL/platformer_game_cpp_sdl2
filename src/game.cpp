@@ -7,9 +7,8 @@ void init_game(const char* save_file) {
     return;
   if (!save_file) { 
     init_level(LEVEL_1);
-    init_hero(); 
-    // init_enemies(LEVEL_1);
-    init_enemies();
+    init_hero();
+    init_enemies(level->number);
     init_shot_container();
     is_init_game = 0;
   } else {
@@ -33,6 +32,51 @@ void game(const char* save_file) {
     updating_game_events();
     updating_game_logic();
     draw_game_frame();
+    next_level(); 
+  }
+}
+
+int collision_with_next_level_block_hero() {
+  SDL_Rect position_block = { 0, 0, level->real_size_edge_block, level->real_size_edge_block };
+  for (int i = 0; i < level->amount_blocks.y; ++i) {
+    for (int j = 0; j < level->amount_blocks.x; ++j) {
+      position_block.x = j * level->real_size_edge_block;
+      position_block.y = i * level->real_size_edge_block;
+      if (level->map[i][j] == BLOCK_NEXT_LEVEL && collision_of_two_objects(&hero->hitbox, &position_block)) {
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
+void next_level() {
+  if (!collision_with_next_level_block_hero())
+    return;
+  switch (level->number) {
+    case LEVEL_1: {
+      // загрузить новую карту в level->map; - DONE
+      // На остове этой карты сделать: - DONE
+        // init platforms; - DONE 
+        // установить новый фон - DONE
+        // установить новые текстуры блоков - DONE
+      // de init enemies - DONE
+      // init enemies (при создании противников, данные считывать с нового файла, для их усилени); - DONE
+      // Переместить координаты гг в точку BLOCK_SPAWN_HERO
+      init_level(LEVEL_2);
+      init_enemies(level->number);
+      init_shot_container();
+      hero->coordinates = get_coordinates_for_new_game_hero();
+    } break;
+    case LEVEL_2: {
+      init_level(LEVEL_3);
+      init_enemies(level->number);
+      init_shot_container();
+      hero->coordinates = get_coordinates_for_new_game_hero();
+    } break;
+    case LEVEL_3: {
+      // конец игры
+    } break;
   }
 }
 

@@ -1,0 +1,18 @@
+1
+16
+120 homing_shot_fly_0.png
+120 homing_shot_fly_1.png
+120 homing_shot_fly_2.png
+120 homing_shot_fly_3.png
+120 homing_shot_fly_4.png
+120 homing_shot_fly_5.png
+120 homing_shot_fly_6.png
+120 homing_shot_fly_7.png
+120 homing_shot_fly_8.png
+120 homing_shot_fly_9.png
+120 homing_shot_fly_10.png
+120 homing_shot_fly_11.png
+120 homing_shot_fly_12.png
+120 homing_shot_fly_13.png
+120 homing_shot_fly_14.png
+120 homing_shot_fly_15.png

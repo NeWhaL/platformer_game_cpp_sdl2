@@ -297,6 +297,7 @@ void logic_game_menu(int is_mouse_button_left) {
           case BUTTON_MAIN_MENU: {
             if (is_mouse_button_left) {
               is_running = MAIN_MENU;
+              is_init_game = 1;
               return;
             }
           } break;

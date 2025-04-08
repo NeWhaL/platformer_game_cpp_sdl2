@@ -42,10 +42,12 @@ extern struct Enemy_container {
 } *enemy_container;
 
 void malloc_enemy_container();
-// void init_enemies(Level_number number);
-void init_enemies();
+void malloc_enemies();
+void init_enemies(Level_number number);
+// void init_enemies();
 void init_textures_enemies();
 void malloc_texture_enemy(Enemy_type type, int amount_textures);
+void de_init_enemy_container();
 void de_init_enemies();
 void updating_enemies();
 void gravity_enemy(Enemy_base* enemy);

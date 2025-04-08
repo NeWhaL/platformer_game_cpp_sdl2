@@ -60,6 +60,7 @@ void init_shot_container();
 void init_shot_textures();
 void de_init_shot_textures();
 void de_init_shot_container();
+void de_init_shots();
 Shot* create_shot(Shot_type type, Shot_creator creator, SDL_FPoint coordinates, float range, float damage, float speed, direction_movement direction = DIRECTION_NONE);
 void destroy_shot(Shot* shot);
 void add_shot_in_shots_container(SDL_FPoint coordinates_spawn, Shot_creator creator_type, 

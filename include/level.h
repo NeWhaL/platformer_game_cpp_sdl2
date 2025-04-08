@@ -9,6 +9,7 @@
 
 extern int amount_platforms;
 extern const int amount_levels;
+
 enum Level_number {
   LEVEL_1,
   LEVEL_2,
@@ -16,11 +17,12 @@ enum Level_number {
 };
 
 enum Blocks {
+  BLOCK_SPACE = ' ',
   BLOCK_SPAWN_HERO = '@',
   BLOCK_SPAWN_SLIME = 'S',
   BLOCK_SPAWN_SKELETON = 'K',
   BLOCK_SPAWN_SHOOTER = 'H',
-  BLOCK_SPACE = ' ',
+  BLOCK_NEXT_LEVEL = 'N',
   BLOCK_GROUND = 'g',
   BLOCK_GROUND_UP = 'u',
   BLOCK_GROUND_DOWN = 'd',
@@ -89,5 +91,6 @@ void move_platform(Platform* platform);
 void collision_platform_with_blocks(Platform* platform);
 int is_it_a_block(Blocks block_type);
 void draw_platforms();
+
 
 #endif
