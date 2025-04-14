@@ -28,6 +28,7 @@ typedef struct {
   float current_speed_gravity;
   int is_standing;
   double death_time;
+  double amount_experience;
   struct {
     Texture* current;
     int current_number_sprite;

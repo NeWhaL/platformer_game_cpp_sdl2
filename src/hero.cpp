@@ -38,6 +38,7 @@ void init_hero() {
   hero->damage_timer = 1000;
   hero->max_damage_timer = hero->damage_timer;
   hero->health = 10;
+  hero->amount_experience = 0;
 }
 
 void init_textures_hero() {
@@ -193,6 +194,7 @@ void update_hero() {
   }
   jump_hero();
   attack_hero();
+  get_experience_hero();
   determine_current_texture_hero();
   set_current_sprite_hero();
   check_death_hero();
@@ -443,10 +445,28 @@ void attack_logic_hero() {
     SDL_Rect attack_hitbox = hero->hitbox;
     for (int i = 0; i < enemy_container->amount_enemies; ++i) {  
       Enemy_base* enemy = enemy_container->enemies[i];
-      if (enemy->type == ENEMY_INACTIVE ||
-          collision_of_two_objects(&attack_hitbox, &enemy->hitbox) == COLLISION_NONE)
+      // if (enemy->type == ENEMY_INACTIVE) {
+      //   if (enemy->amount_experience) {
+      //     hero->amount_experience += enemy->amount_experience;
+      //     enemy->amount_experience -= enemy->amount_experience;
+      //   }
+      //   continue;
+      // }
+      if (enemy->type == ENEMY_INACTIVE || collision_of_two_objects(&attack_hitbox, &enemy->hitbox) == COLLISION_NONE)
         continue;
       enemy->health -= get_damage_hero(hero->attack.type);
+    }
+  }
+}
+
+void get_experience_hero() {
+  for (int i = 0; i < enemy_container->amount_enemies; ++i){
+    Enemy_base* enemy = enemy_container->enemies[i];
+    if (enemy->type == ENEMY_INACTIVE) {
+      if (enemy->amount_experience) {
+        hero->amount_experience += enemy->amount_experience;
+        enemy->amount_experience -= enemy->amount_experience;
+      }
     }
   }
 }

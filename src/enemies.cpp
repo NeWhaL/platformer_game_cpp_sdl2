@@ -60,6 +60,7 @@ void init_enemies(Level_number level_number) {
     slime.base.health = read_from_file_double(f);
     slime.base.damage = read_from_file_double(f);
     slime.base.speed = read_from_file_double(f); 
+    slime.base.amount_experience = read_from_file_double(f);
     fclose(f);
   }
   //Данные для каждого скелета 
@@ -69,6 +70,7 @@ void init_enemies(Level_number level_number) {
     skeleton.base.damage = read_from_file_double(f);
     skeleton.base.speed = read_from_file_double(f);
     skeleton.reaction_range_walk = read_from_file_double(f);
+    skeleton.base.amount_experience = read_from_file_double(f);
     fclose(f);
   }
   Enemy_shooter shooter;
@@ -81,6 +83,7 @@ void init_enemies(Level_number level_number) {
     shooter.attack.shot.speed = read_from_file_double(f);
     shooter.attack.shot.damage = read_from_file_double(f);
     shooter.attack.shot.range = read_from_file_double(f);
+    shooter.base.amount_experience = read_from_file_double(f);
     fclose(f);
   }
   int current_index_enemy = 0;

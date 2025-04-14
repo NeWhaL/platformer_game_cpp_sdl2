@@ -55,14 +55,6 @@ void next_level() {
     return;
   switch (level->number) {
     case LEVEL_1: {
-      // загрузить новую карту в level->map; - DONE
-      // На остове этой карты сделать: - DONE
-        // init platforms; - DONE 
-        // установить новый фон - DONE
-        // установить новые текстуры блоков - DONE
-      // de init enemies - DONE
-      // init enemies (при создании противников, данные считывать с нового файла, для их усилени); - DONE
-      // Переместить координаты гг в точку BLOCK_SPAWN_HERO
       init_level(LEVEL_2);
       init_enemies(level->number);
       init_shot_container();
@@ -75,7 +67,7 @@ void next_level() {
       hero->coordinates = get_coordinates_for_new_game_hero();
     } break;
     case LEVEL_3: {
-      // конец игры
+      // TODO - конец игры
     } break;
   }
 }

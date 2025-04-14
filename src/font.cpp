@@ -1,7 +1,10 @@
 #include "../include/font.h"
 
-SDL_Texture* create_font(const char* font_path, const char* text, SDL_Color color_text, SDL_Rect* size_text, SDL_Rect size_button) {
-  TTF_Font* font = TTF_OpenFont(font_path, 75);
+const char* font_path = "../fonts/Ubuntu-M.ttf";
+const int standart_font_size = 75;
+
+SDL_Texture* create_font(const char* font_path, const char* text, SDL_Color color_text, SDL_Rect* size_text, SDL_Rect size_button, int standart_font_size) {
+  TTF_Font* font = TTF_OpenFont(font_path, standart_font_size);
   SDL_Surface* ttf_surface = TTF_RenderText_Blended(font, text, color_text);
   *size_text = { 
     size_button.x + size_button.w / 2- ttf_surface->w / 2, 

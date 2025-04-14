@@ -5,11 +5,11 @@ Button* buttons_load_menu;
 Button* buttons_stop_menu;
 Button* buttons_save_menu;
 Button* buttons_change_skin_menu;
+Button* buttons_upgrade_menu;
 SDL_Color standart_background_color =  {180, 180, 240, 255};
 SDL_Color current_color_button = {140, 140, 240, 255};
 SDL_Color standart_color_button = {150, 150, 220, 255};
 SDL_Color standart_color_text = {180, 180, 240, 255};
-const char* font_path = "../fonts/Ubuntu-M.ttf";
 const int button_width = window_width / 3;
 const int button_height = 120;
 const int left_margin = window_width / 3;
@@ -19,6 +19,7 @@ const int amount_buttons_in_load_menu = 4;
 const int amount_buttons_in_stop_menu = 5;
 const int amount_buttons_in_save_menu = 4;
 const int amount_buttons_in_change_skin_menu = 3;
+const int amount_buttons_in_upgrade_menu = 5;
 
 void init_main_menu() {
   create_main_menu_buttons();
@@ -29,14 +30,14 @@ void init_game_menu() {
 }
 
 
-void create_button(Button* btn, button_type type, const char* text, int x, int y, int w, int h,
+void create_button(Button* btn, button_type type, const char* text, int x, int y, int w, int h, int font_size,
                    SDL_Color std_color, SDL_Color cur_color) {
   btn->type = type;
   btn->standart_color_button = standart_color_button;
   btn->active_color_button = cur_color;
   btn->color_button = btn->standart_color_button;
-  btn->size_button = { x, y, button_width, button_height };
-  btn->font = create_font(font_path, text, standart_color_text, &btn->size_text, btn->size_button);
+  btn->size_button = { x, y, w, h };
+  btn->font = create_font(font_path, text, standart_color_text, &btn->size_text, btn->size_button, font_size); 
 }
 
 int button_collision(Button* btn) {
@@ -79,17 +80,22 @@ void buttons_malloc(Button** buttons, int size) {
   *buttons = (Button*)malloc(sizeof(Button) * size);
 }
 
-void create_buttons(Button* buttons, button_type* types, const char** names, const int amount_buttons) {
-  int i_up_margin = up_margin;
+void create_buttons(Button* buttons, button_type* types, const char** names, const int amount_buttons,
+                    int up_margin_between_buttons, int left_margin, int button_width, int button_height,
+                    int font_size) {
+  int i_up_margin = up_margin_between_buttons;
   for (int i = 0; i < amount_buttons; ++i) {
     create_button(
       &buttons[i],
       types[i],
       names[i],
       left_margin,
-      i_up_margin
+      i_up_margin,
+      button_width,
+      button_height,
+      font_size 
     );
-    i_up_margin = buttons[i].size_button.y + buttons[i].size_button.h + up_margin;
+    i_up_margin = buttons[i].size_button.y + buttons[i].size_button.h + up_margin_between_buttons;
   }
 }
 
@@ -113,12 +119,14 @@ void create_main_menu_buttons() {
   buttons_malloc(&buttons_main_menu, amount_buttons_in_main_menu);
   const char* button_names_main_menu[amount_buttons_in_main_menu] = { "new game", "load", "exit" };
   button_type button_types_main_menu[amount_buttons_in_main_menu] = { BUTTON_START, BUTTON_LOAD_MENU, BUTTON_EXIT };
-  create_buttons(buttons_main_menu, button_types_main_menu, button_names_main_menu, amount_buttons_in_main_menu);
+  create_buttons(buttons_main_menu, button_types_main_menu, button_names_main_menu, amount_buttons_in_main_menu,
+                 up_margin, left_margin);
 
   buttons_malloc(&buttons_load_menu, amount_buttons_in_load_menu);
   const char* button_names_load_menu[amount_buttons_in_load_menu] = { "load 1", "load 2", "load 3", "main menu"};
   button_type button_types_load_menu[amount_buttons_in_load_menu] = { BUTTON_LOAD, BUTTON_LOAD, BUTTON_LOAD, BUTTON_MAIN_MENU };
-  create_buttons(buttons_load_menu, button_types_load_menu, button_names_load_menu, amount_buttons_in_load_menu);
+  create_buttons(buttons_load_menu, button_types_load_menu, button_names_load_menu, amount_buttons_in_load_menu,
+                 up_margin, left_margin);
 }
 
 
@@ -234,6 +242,12 @@ void create_game_menu_buttons() {
   const char* button_names_change_skin_menu[amount_buttons_in_change_skin_menu] = { "red knight", "green knight", "back"};
   button_type button_types_change_skin_menu[amount_buttons_in_change_skin_menu] = { BUTTON_SKIN_RED_KNIGHT, BUTTON_SKIN_GREEN_KNIGHT, BUTTON_STOP_GAME_MENU };
   create_buttons(buttons_change_skin_menu, button_types_change_skin_menu, button_names_change_skin_menu, amount_buttons_in_change_skin_menu);
+  // upgrade menu
+  buttons_malloc(&buttons_upgrade_menu, amount_buttons_in_upgrade_menu);
+  const char* button_names_upgrade_menu[amount_buttons_in_upgrade_menu] = {"+health", "+pure damage", "+speed", "+jump height", "back" };
+  button_type button_types_upgrade_menu[amount_buttons_in_upgrade_menu] = { BUTTON_UPGRADE_HEALTH, BUTTON_UPGRADE_PURE_DAMAGE, 
+    BUTTON_UPGRADE_SPEED, BUTTON_UPGRADE_JUMP_HEIGHT, BUTTON_STOP_GAME_MENU };
+  create_buttons(buttons_upgrade_menu, button_types_upgrade_menu, button_names_upgrade_menu, amount_buttons_in_upgrade_menu, 20, 20, 200, 80, 30);
 }
 
 void updating_game_menu_events(int* is_mouse_button_left) {
@@ -352,6 +366,40 @@ void logic_game_menu(int is_mouse_button_left) {
         }
       }
     } break;
+    case UPGRADE_MENU: {
+      for (int i = 0; i < amount_buttons_in_upgrade_menu; ++i) {
+        if (!button_collision(&buttons_upgrade_menu[i]))
+          continue;
+        switch (buttons_upgrade_menu[i].type) {
+          case BUTTON_UPGRADE_HEALTH: {
+            if (is_mouse_button_left) {
+              
+            }
+          } break;
+          case BUTTON_UPGRADE_SPEED: {
+            if (is_mouse_button_left) {
+
+            }
+          } break;
+          case BUTTON_UPGRADE_JUMP_HEIGHT: {
+            if (is_mouse_button_left) {
+
+            }
+          } break;
+          case BUTTON_UPGRADE_PURE_DAMAGE: {
+            if (is_mouse_button_left) {
+
+            }
+          } break;
+          case BUTTON_STOP_GAME_MENU: {
+            if (is_mouse_button_left) {
+              is_running = STOP_GAME_MENU;
+              return;
+            }
+          } break;
+        }
+      }
+    } break;
   }
 }
 
@@ -364,7 +412,8 @@ void draw_game_menu_buttons() {
       draw_buttons(buttons_save_menu, amount_buttons_in_save_menu);
     } break;
     case UPGRADE_MENU: {
-
+      draw_buttons(buttons_upgrade_menu, amount_buttons_in_upgrade_menu);
+      // draw_characteristics_hero();
     } break;
     case CHANGE_SKIN_MENU: {
       draw_buttons(buttons_change_skin_menu, amount_buttons_in_change_skin_menu);

@@ -56,6 +56,7 @@ extern struct Hero {
   float jump_height;
   double max_damage_timer;
   double damage_timer;
+  double amount_experience;
   struct { //Всё, что относиться к текстурам героя
     Texture** all;
     Texture* current;
@@ -109,5 +110,6 @@ void reaction_hero_to_hurt();
 void set_skin_hero(Hero_skin_type skin_type);
 void add_shot_in_shots_container_hero(Shot_type shot_type);
 int is_it_possible_to_create_a_shot_hero(Shot_type shot_type);
+void get_experience_hero();
 
 #endif
