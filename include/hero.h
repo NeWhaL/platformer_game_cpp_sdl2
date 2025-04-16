@@ -74,7 +74,7 @@ extern struct Hero {
     struct {
       float speed_shot;
       float range_shot;
-      Shot_type* available_types_of_shots;
+      int* available_types_of_shots;
     } shot;
   } attack;
   Hero_state state;

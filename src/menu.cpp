@@ -19,7 +19,8 @@ const int amount_buttons_in_load_menu = 4;
 const int amount_buttons_in_stop_menu = 5;
 const int amount_buttons_in_save_menu = 4;
 const int amount_buttons_in_change_skin_menu = 3;
-const int amount_buttons_in_upgrade_menu = 5;
+const int amount_buttons_in_upgrade_menu = 7;
+const int cost_of_improvement = 2;
 
 void init_main_menu() {
   create_main_menu_buttons();
@@ -244,10 +245,11 @@ void create_game_menu_buttons() {
   create_buttons(buttons_change_skin_menu, button_types_change_skin_menu, button_names_change_skin_menu, amount_buttons_in_change_skin_menu);
   // upgrade menu
   buttons_malloc(&buttons_upgrade_menu, amount_buttons_in_upgrade_menu);
-  const char* button_names_upgrade_menu[amount_buttons_in_upgrade_menu] = {"+health", "+pure damage", "+speed", "+jump height", "back" };
+  const char* button_names_upgrade_menu[amount_buttons_in_upgrade_menu] = 
+  {"+health", "+pure damage", "+speed", "+jump height", "+shot ordinary", "+shot homing", "back" };
   button_type button_types_upgrade_menu[amount_buttons_in_upgrade_menu] = { BUTTON_UPGRADE_HEALTH, BUTTON_UPGRADE_PURE_DAMAGE, 
-    BUTTON_UPGRADE_SPEED, BUTTON_UPGRADE_JUMP_HEIGHT, BUTTON_STOP_GAME_MENU };
-  create_buttons(buttons_upgrade_menu, button_types_upgrade_menu, button_names_upgrade_menu, amount_buttons_in_upgrade_menu, 20, 20, 200, 80, 30);
+    BUTTON_UPGRADE_SPEED, BUTTON_UPGRADE_JUMP_HEIGHT, BUTTON_UPGRADE_SHOT_ORDINARY, BUTTON_UPGRADE_SHOT_HOMING, BUTTON_STOP_GAME_MENU };
+  create_buttons(buttons_upgrade_menu, button_types_upgrade_menu, button_names_upgrade_menu, amount_buttons_in_upgrade_menu, 20, 20, 250, 80, 30);
 }
 
 void updating_game_menu_events(int* is_mouse_button_left) {
@@ -373,22 +375,52 @@ void logic_game_menu(int is_mouse_button_left) {
         switch (buttons_upgrade_menu[i].type) {
           case BUTTON_UPGRADE_HEALTH: {
             if (is_mouse_button_left) {
-              
+              if (cost_of_improvement <= hero->amount_experience) {
+                hero->health += 3;
+                subtract_experience_hero();
+              }
             }
           } break;
           case BUTTON_UPGRADE_SPEED: {
             if (is_mouse_button_left) {
-
+              if (cost_of_improvement <= hero->amount_experience) {
+                hero->speed += 10;
+                subtract_experience_hero();
+              }
             }
           } break;
           case BUTTON_UPGRADE_JUMP_HEIGHT: {
             if (is_mouse_button_left) {
-
+              if (cost_of_improvement <= hero->amount_experience) {
+                hero->jump_height += 15;
+                subtract_experience_hero();
+              }
             }
           } break;
           case BUTTON_UPGRADE_PURE_DAMAGE: {
             if (is_mouse_button_left) {
-
+              if (cost_of_improvement <= hero->amount_experience) {
+                hero->attack.pure_damage += 2;
+                subtract_experience_hero();
+              }
+            }
+          } break;
+          case BUTTON_UPGRADE_SHOT_ORDINARY: {
+            if (is_mouse_button_left) {
+              if (cost_of_improvement <= hero->amount_experience &&
+                  !hero->attack.shot.available_types_of_shots[SHOT_TYPE_ORDINARY]) {
+                hero->attack.shot.available_types_of_shots[SHOT_TYPE_ORDINARY] = 1;
+                subtract_experience_hero();
+              }
+            }
+          } break;
+          case BUTTON_UPGRADE_SHOT_HOMING: {
+            if (is_mouse_button_left) {
+              if (cost_of_improvement <= hero->amount_experience &&
+                  !hero->attack.shot.available_types_of_shots[SHOT_TYPE_HOMING]) {
+                hero->attack.shot.available_types_of_shots[SHOT_TYPE_HOMING] = 1;
+                subtract_experience_hero();
+              }
             }
           } break;
           case BUTTON_STOP_GAME_MENU: {
@@ -403,6 +435,10 @@ void logic_game_menu(int is_mouse_button_left) {
   }
 }
 
+void subtract_experience_hero() {
+  hero->amount_experience -= cost_of_improvement;
+}
+
 void draw_game_menu_buttons() {
   switch (is_running) {
     case STOP_GAME_MENU: {
@@ -413,12 +449,33 @@ void draw_game_menu_buttons() {
     } break;
     case UPGRADE_MENU: {
       draw_buttons(buttons_upgrade_menu, amount_buttons_in_upgrade_menu);
-      // draw_characteristics_hero();
+      draw_characteristics_hero();
     } break;
     case CHANGE_SKIN_MENU: {
       draw_buttons(buttons_change_skin_menu, amount_buttons_in_change_skin_menu);
     } break;
   }
+}
+
+void draw_characteristics_hero() {
+  draw_something_characteristics_hero("amount experience", hero->amount_experience, 350, 50); 
+  draw_something_characteristics_hero("health", hero->health, 350, 100); 
+  draw_something_characteristics_hero("speed", hero->speed, 350, 150); 
+  draw_something_characteristics_hero("pure damage", hero->attack.pure_damage, 350, 200); 
+  draw_something_characteristics_hero("jump height", hero->jump_height, 350, 250); 
+}
+
+void draw_something_characteristics_hero(const char* characteristics_name, double value, int x, int y) {
+  const int buf_size = 256;
+  char buf[buf_size] = "";
+  snprintf(buf, buf_size, "%s: %.1lf", characteristics_name, value);
+  SDL_Rect size_text;
+  SDL_Texture* text_health = create_font(font_path, buf, {255, 255, 255, 255}, &size_text, {0, 0, 0, 0}, 45);
+  size_text.x = 0;
+  size_text.y = 0;
+  SDL_Rect dst_text_health = {x, y, size_text.w, size_text.h};
+  SDL_RenderCopy(renderer, text_health, &size_text, &dst_text_health);
+  SDL_DestroyTexture(text_health);
 }
 
 void de_init_game_menu() {

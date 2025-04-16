@@ -30,7 +30,7 @@ void init_hero() {
   hero->attack.hitbox = { 0, 0, 0, 0 };
   hero->attack.max_combo_attack_timer = 1000;
   hero->attack.combo_attack_timer = hero->attack.max_combo_attack_timer;
-  hero->attack.shot.available_types_of_shots = (Shot_type*)malloc(sizeof(Shot_type) * SHOT_TYPE_AMOUNT);
+  hero->attack.shot.available_types_of_shots = (int*)malloc(sizeof(int) * SHOT_TYPE_AMOUNT);
   for (int i = 0; i < SHOT_TYPE_AMOUNT; ++i)
     hero->attack.shot.available_types_of_shots[i] = SHOT_TYPE_NONE;
   hero->attack.shot.speed_shot = 200;
@@ -48,25 +48,6 @@ void init_textures_hero() {
   }
   hero->textures.skin_type = HERO_SKIN_NONE;
   set_skin_hero(HERO_SKIN_RED_KNIGHT);
-  // malloc_texture_hero(HERO_IDLE);
-  // init_texture(hero->textures.all[HERO_IDLE], "../game_images/hero/skin_red_knight/idle/");
-  // malloc_texture_hero(HERO_WALK);
-  // init_texture(hero->textures.all[HERO_WALK], "../game_images/hero/skin_red_knight/walk/");
-  // malloc_texture_hero(HERO_RUN);
-  // init_texture(hero->textures.all[HERO_RUN], "../game_images/hero/skin_red_knight/run/");
-  // malloc_texture_hero(HERO_JUMP);
-  // init_texture(hero->textures.all[HERO_JUMP], "../game_images/hero/skin_red_knight/jump/");
-  // malloc_texture_hero(HERO_FALL);
-  // init_texture(hero->textures.all[HERO_FALL], "../game_images/hero/skin_red_knight/fall/");
-  // malloc_texture_hero(HERO_HURT);
-  // init_texture(hero->textures.all[HERO_HURT], "../game_images/hero/skin_red_knight/hurt/");
-  // malloc_texture_hero(HERO_DEATH);
-  // init_texture(hero->textures.all[HERO_DEATH], "../game_images/hero/skin_red_knight/death/");
-  // malloc_texture_hero(HERO_ATTACK, HERO_ATTACK_AMOUNT);
-  // init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_1], "../game_images/hero/skin_red_knight/attack_1/");
-  // init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_2], "../game_images/hero/skin_red_knight/attack_2/");
-  // init_texture(&hero->textures.all[HERO_ATTACK][HERO_ATTACK_BASE_3], "../game_images/hero/skin_red_knight/attack_3/");
-  // hero->textures.sprite_time_counter = 0;
 }
 
 void set_skin_hero(Hero_skin_type skin_type) {
@@ -445,13 +426,6 @@ void attack_logic_hero() {
     SDL_Rect attack_hitbox = hero->hitbox;
     for (int i = 0; i < enemy_container->amount_enemies; ++i) {  
       Enemy_base* enemy = enemy_container->enemies[i];
-      // if (enemy->type == ENEMY_INACTIVE) {
-      //   if (enemy->amount_experience) {
-      //     hero->amount_experience += enemy->amount_experience;
-      //     enemy->amount_experience -= enemy->amount_experience;
-      //   }
-      //   continue;
-      // }
       if (enemy->type == ENEMY_INACTIVE || collision_of_two_objects(&attack_hitbox, &enemy->hitbox) == COLLISION_NONE)
         continue;
       enemy->health -= get_damage_hero(hero->attack.type);

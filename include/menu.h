@@ -21,6 +21,7 @@ extern const int amount_buttons_in_stop_menu;
 extern const int amount_buttons_in_save_menu;
 extern const int amount_buttons_in_change_skin_menu;
 extern const int amount_buttons_in_upgrade_menu;
+extern const int cost_of_improvement;
 
 enum button_type {
   BUTTON_START,
@@ -40,6 +41,8 @@ enum button_type {
   BUTTON_UPGRADE_SPEED,
   BUTTON_UPGRADE_PURE_DAMAGE,
   BUTTON_UPGRADE_JUMP_HEIGHT,
+  BUTTON_UPGRADE_SHOT_ORDINARY,
+  BUTTON_UPGRADE_SHOT_HOMING
 };
 
 extern struct Button {
@@ -86,6 +89,10 @@ void create_game_menu_buttons();
 void updating_game_menu_events(int* is_mouse_button_left);
 void logic_game_menu(int is_mouse_button_left);
 void draw_game_menu_buttons();
+void draw_characteristics_hero();
+void draw_something_characteristics_hero(const char* characteristics_name, double value, int x, int y);
 void de_init_game_menu();
+
+void subtract_experience_hero();
 
 #endif
