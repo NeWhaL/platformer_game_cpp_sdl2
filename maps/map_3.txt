@@ -14,21 +14,21 @@ l                                                          r
 l                                                          r
 l                                                          r
 l                                                          r
+l         H                                                r
 l                                                          r
 l                                                          r
+l                      H                                   r
+N                                                          r
+N                                                          r
+quu                                                        r
+l                                                          r
+l     ii      g                                            r
+l                        H                                 r
+l                                                          r
+l      p         g                                         r
 l                                                          r
 l                                                          r
+l           p    g                                         r
+l     @                       S S S S                      r
 l                                                          r
-l                                                          r
-l                                                          r
-l                                                          r
-l                                                          r
-l                                                          r
-l                                                          r
-l                                                          r
-l             ppppppp       rl   b           g             r
-l                                                          r
-l         rl                rl            rl               r
-l  @      rl       H        rl     H      rl     K         N
-l         rl                rl            rl               N
-adddddddddsaddddddddddddddddsaddddddddddddsaddddddddddddddds
+adddddddddddddddddddddddddddddddddddddddddddddddddddddddddds

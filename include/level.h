@@ -10,6 +10,9 @@
 extern int amount_platforms;
 extern const int amount_levels;
 
+extern const char* filename_blocks[];
+extern const char* filename_maps[];
+
 enum Level_number {
   LEVEL_1,
   LEVEL_2,

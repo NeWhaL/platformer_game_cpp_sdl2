@@ -100,7 +100,8 @@ void create_buttons(Button* buttons, button_type* types, const char** names, con
   }
 }
 
-void main_menu() {
+Save_number main_menu() {
+  Save_number number = CONTINUE_GAME;
   if (!is_init_game) {
     de_init_game();
     is_init_game = 1;
@@ -110,10 +111,11 @@ void main_menu() {
     updating_dt();
     updating_mouse_state();
     updating_main_menu_events(&is_mouse_button_left);  
-    logic_main_menu(is_mouse_button_left);
+    number = logic_main_menu(is_mouse_button_left);
     draw_menu(draw_main_menu_buttons);
     is_mouse_button_left = 0;
   }
+  return number;
 }
 
 void create_main_menu_buttons() {
@@ -155,7 +157,8 @@ void updating_main_menu_events(int* is_mouse_button_left) {
 	}
 }
 
-void logic_main_menu(int is_mouse_button_left) {
+Save_number logic_main_menu(int is_mouse_button_left) {
+  Save_number number = CONTINUE_GAME; 
   if (is_running == MAIN_MENU) {
     for (int i = 0; i < amount_buttons_in_main_menu; ++i)
       if (button_collision(&buttons_main_menu[i]))
@@ -163,31 +166,32 @@ void logic_main_menu(int is_mouse_button_left) {
           case BUTTON_START: {
             if (is_mouse_button_left) {
               is_running = GAME;
-              return;
+              return NEW_GAME;
             }
           } break;
           case BUTTON_LOAD_MENU: {
             if (is_mouse_button_left) {
               is_running = LOAD_MENU;
-              return;
+              return number;
             }
           } break;
           case BUTTON_EXIT: {
             if (is_mouse_button_left) {
               is_running = NO_IS_RUNNING;
-              return;
+              return number;
             }
           } break;
         }
-    return;
+    return number;
   } 
   for (int i = 0; i < amount_buttons_in_load_menu; ++i)
     if (button_collision(&buttons_load_menu[i]))
       switch (buttons_load_menu[i].type) {
         case BUTTON_LOAD: {
           if (is_mouse_button_left) {
-            //достать путь до файла с сохранением и отдать в init_game();
-            return;
+            // load_progress(Save_number(i));
+            is_running = GAME; 
+            return Save_number(i);
           }
         } break;
         case BUTTON_MAIN_MENU: {
@@ -195,6 +199,7 @@ void logic_main_menu(int is_mouse_button_left) {
             is_running = MAIN_MENU;
         } break;
       }
+  return number;
 }
 
 void draw_main_menu_buttons() {
@@ -327,7 +332,7 @@ void logic_game_menu(int is_mouse_button_left) {
         switch (buttons_save_menu[i].type) {
           case BUTTON_SAVE: {
             if (is_mouse_button_left) {
-              //логика сохранения текущего прогресса в файл (отсюда достать только путь к файлу куда сохранять и отдать в функцию).
+              save_progress(Save_number(i));
               return;
             }
           } break;

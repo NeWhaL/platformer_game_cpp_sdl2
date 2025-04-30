@@ -8,10 +8,10 @@ void init_hero() {
     printf("Не удалось получить ресурсы для Hero *hero...\n");
     de_init_application(1);
   }
-  hero->state = HERO_IDLE;
-  hero->coordinates = get_coordinates_for_new_game_hero();
   init_textures_hero();
   set_current_texture_hero(hero->textures.all[hero->state]);
+  hero->state = HERO_IDLE;
+  hero->coordinates = get_coordinates_for_new_game_hero(); 
   hero->hitbox = {
     (int)hero->coordinates.x,
     (int)hero->coordinates.y,

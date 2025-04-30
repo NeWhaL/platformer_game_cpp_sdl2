@@ -9,9 +9,10 @@
 #include "hero.h"
 #include "level.h"
 #include "enemy_base.h"
+#include "load_save.h"
 
-void init_game(const char* save_file);
-void game(const char* save_file = NULL);
+void init_game(Save_number number = NEW_GAME);
+void game(Save_number number = NEW_GAME);
 void game_menu();
 void updating_game_events();
 void updating_game_logic();

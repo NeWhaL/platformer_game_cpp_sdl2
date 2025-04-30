@@ -20,15 +20,15 @@ l                                                          r
 l                                                          r
 l                                                          r
 l                                                          r
-l                                                          r
-l                                                          r
-l                                                          r
-l                                                          r
-l      @                                                   r
-l                                                          r
-l      r          p          g                             r
-l      r                                                   r
-gdddddds      bbb   g  pp    g                             r
+l                          K                      K        N
 l                                                          N
-l               S                                          N
-adddddddddddddddddddddddddddddddddddddddddddddddddddddddddds
+l        rl bbb      rquuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuw
+l        rl          rl                                    r
+l        rl          rl                                    r
+l        rl       ii rl                                    r
+l                    rl                                    r
+l                    rl                                    r
+g        rl ppp      rl                                    r
+l   @    rl  S                                             r
+l        rl          rl                                    r
+addddddddsaddddddddddsadddddddddddddddddddddddddddddddddddds

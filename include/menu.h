@@ -7,6 +7,7 @@
 #include "other_function.h"
 #include "background.h"
 #include "game.h"
+#include "load_save.h"
 
 extern SDL_Color standart_background_color;
 extern SDL_Color current_color_button;
@@ -77,10 +78,10 @@ void draw_button(Button* btn);
 void draw_buttons(Button* buttons, int amount_button);
 void draw_menu(void draw_buttons_menu(), SDL_Color background_color = standart_background_color);
 
-void main_menu();
+Save_number main_menu();
 void create_main_menu_buttons();
 void updating_main_menu_events(int* is_mouse_button_left);
-void logic_main_menu(int is_mouse_button_left);
+Save_number logic_main_menu(int is_mouse_button_left);
 void draw_main_menu_buttons();
 void de_init_main_menu();
 

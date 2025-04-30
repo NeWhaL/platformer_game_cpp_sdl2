@@ -2,18 +2,17 @@
 
 int is_init_game = 1;
 
-void init_game(const char* save_file) {
-  if (!is_init_game)
+void init_game(Save_number number) {
+  if (number == CONTINUE_GAME || !is_init_game)
     return;
-  if (!save_file) { 
+  if (number == NEW_GAME) { 
     init_level(LEVEL_1);
     init_hero();
     init_enemies(level->number);
     init_shot_container();
     is_init_game = 0;
   } else {
-    load_level(save_file);
-    load_hero(save_file);
+    load_progress(number);  
     // is_init_game = 0;
   }
   is_init_game = 0;
@@ -26,8 +25,8 @@ void de_init_game() {
   de_init_shot_container();
 }
 
-void game(const char* save_file) {
-  init_game(save_file);
+void game(Save_number number) {
+  init_game(number);
   while (is_running == GAME) {
     updating_game_events();
     updating_game_logic();
@@ -67,7 +66,7 @@ void next_level() {
       hero->coordinates = get_coordinates_for_new_game_hero();
     } break;
     case LEVEL_3: {
-      // TODO - конец игры
+      is_running = MAIN_MENU;
     } break;
   }
 }

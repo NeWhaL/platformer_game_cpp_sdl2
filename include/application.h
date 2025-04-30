@@ -5,6 +5,7 @@
 #include "init_application.h"
 #include "menu.h"
 #include "game.h"
+#include "load_save.h"
 
 void application();
 void init_main_cycle();

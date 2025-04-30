@@ -15,6 +15,7 @@ void de_init_main_cycle() {
 
 void application() {
   init_main_cycle();
+  Save_number number = CONTINUE_GAME;
   while (is_running == MAIN_MENU ||
          is_running == LOAD_MENU ||
          is_running == GAME ||
@@ -22,9 +23,11 @@ void application() {
          is_running == UPGRADE_MENU ||
          is_running == SAVE_MENU) {
     if (is_running == MAIN_MENU || is_running == LOAD_MENU)
-      main_menu();
-    else if (is_running == GAME)
-      game();
+      number = main_menu();
+    else if (is_running == GAME) {
+      game(number);
+      number = CONTINUE_GAME;
+    } 
     else if (is_running == STOP_GAME_MENU ||
              is_running == UPGRADE_MENU ||
              is_running == SAVE_MENU ||
